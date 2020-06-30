@@ -1,10 +1,8 @@
-import * as React from 'react'
-import styles from './styles.module.css'
+import { ShipTable } from './components/ShipTable'
 
-interface Props {
-  text: string
+declare module 'ts-ship-table'{
 }
 
-export const ExampleComponent = ({ text }: Props) => {
-  return <div className={styles.test}>Example Component: {text}</div>
-}
+export * from './types/UserEnabledTypes'
+export { ShipTable }
+

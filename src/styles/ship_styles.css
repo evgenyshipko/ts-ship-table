@@ -1,0 +1,80 @@
+
+.firstLine{
+    display: inline-block;
+    background-color: white;
+    z-index: 1;
+    width: 100%;
+}
+
+.mainTableDiv{
+    display: table;
+    margin: 0 auto;
+}
+
+.searchBtn{
+    display: inline-block;
+    margin: 3px;
+    vertical-align: middle;
+}
+
+.loadingSpin{
+    display: inline-block;
+    margin-left: 120px;
+    vertical-align: middle;
+    position: absolute;
+}
+
+.ant-pagination{
+    display: inline-block;
+    margin: 3px;
+    vertical-align: middle;
+    margin-left: 10%;
+}
+
+.textSwitchDiv{
+    display: inline-block;
+    vertical-align: middle;
+    margin: 3px;
+    margin-right: 20px;
+}
+
+.textSwitch{
+    margin-bottom: 2px;
+    margin-left: 5px;
+}
+
+.mainTableDiv table {
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+}
+
+.mainTableDiv th {
+    top: 0;
+    background-color: gainsboro;
+    z-index: 1;
+
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+.mainTableDiv tr {
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+}
+
+.mainTableDiv td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.mainTableDiv th {
+    position: sticky;
+}
+
+.mainTableDiv .wms-table-filter-row td {
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+    background-color: white;
+}
