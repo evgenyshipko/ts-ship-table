@@ -79,7 +79,8 @@ class ShipTable extends Component<TableProps> {
         if (
             this.props.isPaginationNeeded !== prevProps.isPaginationNeeded ||
             this.props.isSearchNeeded !== prevProps.isSearchNeeded ||
-            this.props.isTestSwitchNeeded !== prevProps.isTestSwitchNeeded
+            this.props.isTestSwitchNeeded !== prevProps.isTestSwitchNeeded ||
+            this.props.id !== prevProps.id
         ) {
             this.updateTableData()
         }
