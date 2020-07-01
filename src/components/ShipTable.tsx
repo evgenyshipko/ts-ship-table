@@ -89,8 +89,8 @@ class ShipTable extends Component<TableProps> {
     updateTableData = () => {
         this.toggleDataLoadingSpin()
         const path = this.props.dataEndPointPath + this.getRequestWarehouseDataParams()
-        console.log('request path')
-        console.log(path)
+        console.log('updateTableData')
+        console.log(`request path: ${path}`)
 
         axios.get(path, this.props.axiosConfig)
             .then(res => {
@@ -308,4 +308,3 @@ class ShipTable extends Component<TableProps> {
 }
 
 export { ShipTable }
-

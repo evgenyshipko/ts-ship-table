@@ -5,14 +5,21 @@ import {
     ColumnItemType,
     AxiosConfigType,
     TransformedColumnDataType,
-    TableDataType,
-    TableProps
+    TableDataType
 } from 'ts-ship-table'
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
 
+interface State {
+  shipTablePropId: string
+}
+
 class App extends Component {
+  state: State = {
+      shipTablePropId: uuidv4()
+  }
+
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
 
    columnInfoList: Array<ColumnItemType> = [
@@ -66,20 +73,32 @@ class App extends Component {
         })
     }
 
-    params: TableProps = {
-        id: uuidv4(),
-        dataEndPointPath: this.endPointPath,
-        axiosConfig: this.axiosConfig,
-        columnList: this.columnInfoList,
-        transformResponseDataFunc: this.transformResponseData,
-        isTestSwitchNeeded: true,
-        isSearchNeeded: true,
-        isPaginationNeeded: true
-    }
-
     render() {
+        const btn = (
+            <button
+                onClick={() => {
+                    this.state.shipTablePropId = uuidv4()
+                    this.setState(this.state)
+                }}
+            >
+                Change ShipTable prop id
+            </button>
+        )
+
         return (
-            <ShipTable {...this.params} />
+            <div>
+                {btn}
+                <ShipTable
+                    id={this.state.shipTablePropId}
+                    dataEndPointPath={this.endPointPath}
+                    axiosConfig={this.axiosConfig}
+                    columnList={this.columnInfoList}
+                    transformResponseDataFunc={this.transformResponseData}
+                    isTestSwitchNeeded={true}
+                    isSearchNeeded={true}
+                    isPaginationNeeded={true}
+                />
+            </div>
         )
     }
 }
