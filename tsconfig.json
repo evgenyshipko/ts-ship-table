@@ -16,7 +16,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["../src/typings.d.ts", "../src/types/ResponseTableType.ts", "../src/types/UserEnabledTypes.ts"]
+    "typeRoots": ["../src/typings.d.ts", "../src/types/PublicTypes.ts", "../src/types/PrivateTypes.ts"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "example"]

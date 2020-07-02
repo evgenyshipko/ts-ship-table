@@ -1,46 +1,48 @@
 import React from 'react'
 import { Input } from 'antd'
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
-import { TableDataTypeExtended } from '../types/ResponseTableType'
-import { TransformedColumnDataType } from '../types/UserEnabledTypes'
 
 const { Search } = Input
 
-// @ts-ignore
-export const renderFilterCell = (tableData: TableDataTypeExtended, rowData: TransformedColumnDataType, columnId: string) => {
+export const renderFilterCell = (props: any) => {
     return (
         <Search
-            defaultValue={tableData.searchInfo[columnId]}
+            defaultValue={props.tableData.searchInfo[props.columnId]}
             onChange={(e) => {
-                tableData.setSearchInfo(columnId, e.target.value)
+                props.tableData.setSearchInfo(props.columnId, e.target.value)
             }}
             onSearch={() => {
-                tableData.updateTableData()
+                props.tableData.updateTableData()
             }}
         />
     )
 }
 
-export const renderHeaderWarehouseTable = (tableData: TableDataTypeExtended, headerInfo:any) => {
-    let sortIcon = <></>
-    if (tableData.sortInfo.columnId === headerInfo.field) {
-        if (tableData.sortInfo.asc) {
-            sortIcon = <SortAscendingOutlined />
-        } else {
-            sortIcon = <SortDescendingOutlined />
-        }
-    }
+export const renderHeaderWarehouseTable = (props: any) => {
+    if (props.tableData.isSortingNeeded) {
+        let sortIcon = <></>
 
-    return (
-        <>
-            <span onClick={() => {
-                tableData.toggleSortInfo(headerInfo.field)
-                tableData.updateTableData()
-            }}
-            >
-                {headerInfo.title}
-            </span>
-            {sortIcon}
-        </>
-    )
+        if (props.tableData.sortInfo.columnId === props.headerInfo.field) {
+            if (props.tableData.sortInfo.asc) {
+                sortIcon = <SortAscendingOutlined />
+            } else {
+                sortIcon = <SortDescendingOutlined />
+            }
+        }
+
+        return (
+            <>
+                <span onClick={() => {
+                    props.tableData.toggleSortInfo(props.headerInfo.field)
+                    props.tableData.updateTableData()
+                }}
+                >
+                    {props.headerInfo.title}
+                </span>
+                {sortIcon}
+            </>
+        )
+    } else {
+        return props.headerInfo.title
+    }
 }

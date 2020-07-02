@@ -1,23 +1,23 @@
-import React, { Component } from 'react'
+import React, { Component, RefObject } from 'react'
 
 import {
     ShipTable,
-    ColumnItemType,
-    AxiosConfigType,
-    TransformedColumnDataType,
-    TableDataType
+    ColumnItemType
 } from 'ts-ship-table'
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
+import { TransformedResponseData } from '../../src/types/PublicTypes'
 
 interface State {
   shipTablePropId: string
+  isPaginationNeeded: boolean
 }
 
 class App extends Component {
   state: State = {
-      shipTablePropId: uuidv4()
+      shipTablePropId: uuidv4(),
+      isPaginationNeeded: true
   }
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
@@ -43,15 +43,8 @@ class App extends Component {
        }
    ]
 
-    axiosConfig: AxiosConfigType = {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }
-
-    // @ts-ignore
-    completedColumnRender = (tableData: TableDataType, rowData: TransformedColumnDataType, columnId: string) => {
-        if (rowData.completed.value) {
+    completedColumnRender = (props: any) => {
+        if (props.rowData.completed.value) {
             return 'Да'
         } else {
             return 'Нет'
@@ -59,44 +52,58 @@ class App extends Component {
     }
 
     transformResponseData = (responseData: Array<any>) => {
-        return responseData.map((row) => {
+        const rows = responseData.map((row) => {
             const result: any = { id: uuidv4() }
             this.columnInfoList.forEach((columnData) => {
                 const columnName = columnData.field
                 result[columnName] = { value: row[columnName] }
 
                 if (columnName === 'completed') {
-                    result[columnName] = { ...result[columnName], funcRenderer: this.completedColumnRender }
+                    result[columnName] = { ...result[columnName], render: this.completedColumnRender }
                 }
             })
             return result
         })
+
+        const result: TransformedResponseData = { rows: rows, totalRowQuantity: rows.length }
+        return result
     }
+
+    ref: RefObject<any> = React.createRef()
 
     render() {
         const btn = (
             <button
                 onClick={() => {
-                    this.state.shipTablePropId = uuidv4()
+                    this.ref.current.updateTableData()
+                }}
+            >
+                updateShipTable
+            </button>
+        )
+
+        const pbtn = (
+            <button
+                onClick={() => {
+                    this.state.isPaginationNeeded = !this.state.isPaginationNeeded
                     this.setState(this.state)
                 }}
             >
-                Change ShipTable prop id
+                changePagination
             </button>
         )
 
         return (
             <div>
                 {btn}
+                {pbtn}
                 <ShipTable
                     id={this.state.shipTablePropId}
                     dataEndPointPath={this.endPointPath}
-                    axiosConfig={this.axiosConfig}
                     columnList={this.columnInfoList}
                     transformResponseDataFunc={this.transformResponseData}
-                    isTestSwitchNeeded={true}
-                    isSearchNeeded={true}
-                    isPaginationNeeded={true}
+                    isPaginationNeeded={this.state.isPaginationNeeded}
+                    ref={this.ref}
                 />
             </div>
         )

@@ -1,4 +1,4 @@
-import { TableDataType } from './UserEnabledTypes'
+import { TableDataType } from './PublicTypes'
 
 export interface PaginationInfoType {
     pageNumber: number,
@@ -20,5 +20,6 @@ export interface TableDataTypeExtended extends TableDataType{
     sortInfo: SortInfoType,
     setSearchInfo: any,
     updateTableData: any,
-    toggleSortInfo: any
+    toggleSortInfo: any,
+    isSortingNeeded: boolean | undefined
 }

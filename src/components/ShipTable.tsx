@@ -5,12 +5,12 @@ import {
     SearchInfoType,
     SortInfoType,
     TableDataTypeExtended
-} from '../types/ResponseTableType'
+} from '../types/PrivateTypes'
 
 import {
-    TransformedColumnDataType,
-    TableProps
-} from '../types/UserEnabledTypes'
+    RowType,
+    TableProps, TransformedResponseData
+} from '../types/PublicTypes'
 
 import { Button, Pagination, Spin } from 'antd'
 import axios from 'axios'
@@ -22,7 +22,7 @@ import '../styles/ship_styles.css'
 
 interface State {
     prevPropsId: undefined | number | string
-    transformedTableData: Array<TransformedColumnDataType>,
+    transformedTableData: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
     sortInfo: SortInfoType,
@@ -54,33 +54,11 @@ class ShipTable extends Component<TableProps> {
         this.updateTableData()
     }
 
-    static getDerivedStateFromProps(nextProps: TableProps, state: State) {
-        if (nextProps.id !== state.prevPropsId && !nextProps.isPaginationNeeded) {
-            return {
-                prevPropsId: nextProps.id,
-                paginationInfo: {
-                }
-            }
-        } else if (nextProps.id !== state.prevPropsId && nextProps.isPaginationNeeded) {
-            return {
-                prevPropsId: nextProps.id,
-                paginationInfo: {
-                    pageNumber: 1,
-                    recordsPerPage: 10,
-                    totalRecordsQuantity: 50
-                }
-            }
-        }
-
-        return {}
-    }
-
     componentDidUpdate(prevProps : TableProps) {
         if (
             this.props.isPaginationNeeded !== prevProps.isPaginationNeeded ||
             this.props.isSearchNeeded !== prevProps.isSearchNeeded ||
-            this.props.isTestSwitchNeeded !== prevProps.isTestSwitchNeeded ||
-            this.props.id !== prevProps.id
+            this.props.isTestSwitchNeeded !== prevProps.isTestSwitchNeeded
         ) {
             this.updateTableData()
         }
@@ -92,14 +70,31 @@ class ShipTable extends Component<TableProps> {
         console.log('updateTableData')
         console.log(`request path: ${path}`)
 
-        axios.get(path, this.props.axiosConfig)
+        let axiosConfig = this.props.axiosConfig
+        if (axiosConfig === undefined) {
+            axiosConfig = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        }
+
+        axios.get(path, axiosConfig)
             .then(res => {
-                const newRecordsQuantity = res.data.total_row_quantity
                 const recordsPerPage = this.state.paginationInfo.recordsPerPage
                 const pageNumber = this.state.paginationInfo.pageNumber
-                let responseData = res.data.rows
+                const responseData = res.data
 
-                if (responseData !== undefined && newRecordsQuantity !== undefined) {
+                let transformedTableData: TransformedResponseData
+                if (this.props.transformResponseDataFunc !== undefined) {
+                    transformedTableData = this.props.transformResponseDataFunc(responseData)
+                } else {
+                    transformedTableData = responseData
+                }
+
+                const newRecordsQuantity = transformedTableData.totalRowQuantity
+
+                if (this.isPaginationOnBackEnd(transformedTableData)) {
                     if (
                         this.props.isPaginationNeeded &&
                         recordsPerPage !== undefined &&
@@ -110,32 +105,30 @@ class ShipTable extends Component<TableProps> {
                         this.setState(this.state)
                         this.updateTableData()
                     }
-
-                    this.setState({
-                        transformedTableData: this.props.transformResponseDataFunc(responseData),
-                        paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: newRecordsQuantity }
-                    })
                 } else {
-                    responseData = res.data
-                    const responseDataLength = responseData.length
-                    let newData = []
                     if (responseData !== undefined) {
                         if (this.props.isPaginationNeeded && recordsPerPage !== undefined) {
-                            newData = responseData.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
-                        } else {
-                            newData = responseData
+                            transformedTableData.rows = transformedTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
                         }
-
-                        this.setState({
-                            transformedTableData: this.props.transformResponseDataFunc(newData),
-                            paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: responseDataLength }
-                        })
                     }
                 }
+
+                this.setState({
+                    transformedTableData: transformedTableData.rows,
+                    paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: newRecordsQuantity }
+                })
 
                 this.updateWarehouseTableDataByFilterRow()
                 this.toggleDataLoadingSpin()
             })
+    }
+
+    isPaginationOnBackEnd = (data: TransformedResponseData) => {
+        if (data.rows.length === this.state.paginationInfo.recordsPerPage) {
+            return true
+        } else {
+            return false
+        }
     }
 
     getRequestWarehouseDataParams = () => {
@@ -176,7 +169,7 @@ class ShipTable extends Component<TableProps> {
             this.props.columnList.forEach((columnData) => {
                 const columnId = columnData.field
                 if (columnData.filterEnabled) {
-                    data[columnId] = { funcRenderer: renderFilterCell }
+                    data[columnId] = { render: renderFilterCell }
                 }
             })
             this.state.transformedTableData.unshift(data)
@@ -222,8 +215,9 @@ class ShipTable extends Component<TableProps> {
     }
 
     render() {
+
         const columnList = this.props.columnList.map((columnInfo) => {
-            columnInfo.funcRenderer = renderHeaderWarehouseTable
+            columnInfo.renderer = renderHeaderWarehouseTable
             return columnInfo
         })
 
@@ -235,7 +229,8 @@ class ShipTable extends Component<TableProps> {
             sortInfo: this.state.sortInfo,
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
-            toggleSortInfo: this.toggleSortInfo
+            toggleSortInfo: this.toggleSortInfo,
+            isSortingNeeded: this.props.isSortingNeeded
         }
 
         let pagination = <></>
