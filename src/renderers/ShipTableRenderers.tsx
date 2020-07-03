@@ -1,10 +1,11 @@
 import React from 'react'
 import { Input } from 'antd'
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
+import {RenderHeaderProps, RenderProps} from '..'
 
 const { Search } = Input
 
-export const renderFilterCell = (props: any) => {
+export const renderFilterCell = (props: RenderProps) => {
     return (
         <Search
             defaultValue={props.tableData.searchInfo[props.columnId]}
@@ -18,7 +19,7 @@ export const renderFilterCell = (props: any) => {
     )
 }
 
-export const renderHeaderWarehouseTable = (props: any) => {
+export const renderHeaderWarehouseTable = (props: RenderHeaderProps) => {
     if (props.tableData.isSortingNeeded) {
         let sortIcon = <></>
 

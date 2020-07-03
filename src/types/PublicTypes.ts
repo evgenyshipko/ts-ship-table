@@ -1,5 +1,6 @@
 import { RefObject } from 'react'
 import { AxiosResponse } from 'axios'
+import {TableDataTypeExtended} from "./PrivateTypes";
 
 export interface RowType {
   id: any,
@@ -9,7 +10,7 @@ export interface RowType {
 export interface CellType {
   value: any,
   funcRenderer?: (tableData: TableDataType, rowData: RowType, columnId: string) => any,
-  render?: (props: any) => any,
+  render?: (props: RenderProps) => any,
 }
 
 export interface TableDataType {
@@ -46,4 +47,15 @@ export interface TableProps {
 export interface TransformedResponseData {
     rows: Array<RowType>,
     totalRowQuantity: number
+}
+
+export interface RenderProps {
+    tableData: TableDataTypeExtended,
+    rowData: RowType,
+    columnId: string
+}
+
+export interface RenderHeaderProps {
+    tableData: TableDataTypeExtended,
+    headerInfo: ColumnItemType
 }

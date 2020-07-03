@@ -1,14 +1,16 @@
+//@ts-ignore
 import React, { Component, RefObject } from 'react'
 
 import {
     ShipTable,
-    ColumnItemType
+    ColumnItemType,
+    TransformedResponseData
 } from 'ts-ship-table'
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
-import { TransformedResponseData } from '../../src/types/PublicTypes'
 import { AxiosResponse } from 'axios'
+import CompletedColumnRender from './renderers/completedColumnRender'
 
 interface State {
   isPaginationNeeded: boolean
@@ -42,14 +44,6 @@ class App extends Component {
        }
    ]
 
-    completedColumnRender = (props: any) => {
-        if (props.rowData.completed.value) {
-            return 'Да'
-        } else {
-            return 'Нет'
-        }
-    }
-
     transformResponseData = (response: AxiosResponse) => {
         const responseData: Array<any> = response.data
         const rows = responseData.map((row) => {
@@ -59,7 +53,7 @@ class App extends Component {
                 result[columnName] = { value: row[columnName] }
 
                 if (columnName === 'completed') {
-                    result[columnName] = { ...result[columnName], render: this.completedColumnRender }
+                    result[columnName] = { ...result[columnName], render: CompletedColumnRender }
                 }
             })
             return result
