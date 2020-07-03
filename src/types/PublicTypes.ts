@@ -1,16 +1,15 @@
-import { RefObject } from 'react'
+import { ComponentType, RefObject } from 'react'
 import { AxiosResponse } from 'axios'
-import {TableDataTypeExtended} from "./PrivateTypes";
+import { TableDataTypeExtended } from './PrivateTypes'
 
 export interface RowType {
-  id: any,
-  [key: string]: CellType
+    [key: string]: any,
 }
 
 export interface CellType {
   value: any,
   funcRenderer?: (tableData: TableDataType, rowData: RowType, columnId: string) => any,
-  render?: (props: RenderProps) => any,
+  render?: ((props: RenderProps) => any) | ComponentType<RenderProps>,
 }
 
 export interface TableDataType {

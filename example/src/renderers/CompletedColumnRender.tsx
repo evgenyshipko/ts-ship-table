@@ -1,5 +1,4 @@
-//@ts-ignore
-import React, { Component } from 'react'
+import { Component } from 'react'
 import {
     RenderProps
 } from 'ts-ship-table'

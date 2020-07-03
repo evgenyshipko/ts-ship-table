@@ -1,4 +1,4 @@
-//@ts-ignore
+// @ts-ignore
 import React, { Component, RefObject } from 'react'
 
 import {
@@ -10,10 +10,18 @@ import {
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
 import { AxiosResponse } from 'axios'
-import CompletedColumnRender from './renderers/completedColumnRender'
+import CompletedColumnRender from './renderers/CompletedColumnRender'
+import { RowType } from '../../src'
 
 interface State {
   isPaginationNeeded: boolean
+}
+
+interface ResponseDataType {
+    userId: number,
+    id: number,
+    title: string,
+    completed: boolean
 }
 
 class App extends Component {
@@ -45,17 +53,14 @@ class App extends Component {
    ]
 
     transformResponseData = (response: AxiosResponse) => {
-        const responseData: Array<any> = response.data
-        const rows = responseData.map((row) => {
-            const result: any = { id: uuidv4() }
-            this.columnInfoList.forEach((columnData) => {
-                const columnName = columnData.field
-                result[columnName] = { value: row[columnName] }
-
-                if (columnName === 'completed') {
-                    result[columnName] = { ...result[columnName], render: CompletedColumnRender }
-                }
-            })
+        const responseData: Array<ResponseDataType> = response.data
+        const rows: Array<RowType> = responseData.map((row) => {
+            const result: RowType = {
+                id: uuidv4(),
+                userId: { value: row.userId },
+                title: { value: row.title },
+                completed: { value: row.completed, render: CompletedColumnRender }
+            }
             return result
         })
 
