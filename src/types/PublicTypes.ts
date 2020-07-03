@@ -1,4 +1,5 @@
 import { RefObject } from 'react'
+import { AxiosResponse } from 'axios'
 
 export interface RowType {
   id: any,
@@ -33,7 +34,7 @@ export interface TableProps {
   id: string | number,
   dataEndPointPath: string,
   columnList: Array<ColumnItemType>,
-  transformResponseDataFunc?: (...args: any) => TransformedResponseData
+  transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData
   axiosConfig?: AxiosConfigType,
   isTestSwitchNeeded?: boolean,
   isSearchNeeded?: boolean,

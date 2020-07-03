@@ -8,15 +8,14 @@ import {
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
 import { TransformedResponseData } from '../../src/types/PublicTypes'
+import { AxiosResponse } from 'axios'
 
 interface State {
-  shipTablePropId: string
   isPaginationNeeded: boolean
 }
 
 class App extends Component {
   state: State = {
-      shipTablePropId: uuidv4(),
       isPaginationNeeded: true
   }
 
@@ -51,7 +50,8 @@ class App extends Component {
         }
     }
 
-    transformResponseData = (responseData: Array<any>) => {
+    transformResponseData = (response: AxiosResponse) => {
+        const responseData: Array<any> = response.data
         const rows = responseData.map((row) => {
             const result: any = { id: uuidv4() }
             this.columnInfoList.forEach((columnData) => {
@@ -98,7 +98,7 @@ class App extends Component {
                 {btn}
                 {pbtn}
                 <ShipTable
-                    id={this.state.shipTablePropId}
+                    id={uuidv4()}
                     dataEndPointPath={this.endPointPath}
                     columnList={this.columnInfoList}
                     transformResponseDataFunc={this.transformResponseData}

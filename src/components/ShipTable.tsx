@@ -80,42 +80,36 @@ class ShipTable extends Component<TableProps> {
         }
 
         axios.get(path, axiosConfig)
-            .then(res => {
-                const recordsPerPage = this.state.paginationInfo.recordsPerPage
-                const pageNumber = this.state.paginationInfo.pageNumber
-                const responseData = res.data
-
-                let transformedTableData: TransformedResponseData
+            .then(response => {
+                let responseTableData: TransformedResponseData
                 if (this.props.transformResponseDataFunc !== undefined) {
-                    transformedTableData = this.props.transformResponseDataFunc(responseData)
+                    responseTableData = this.props.transformResponseDataFunc(response)
                 } else {
-                    transformedTableData = responseData
+                    responseTableData = response.data
                 }
 
-                const newRecordsQuantity = transformedTableData.totalRowQuantity
+                const totalRecordsQuantity = responseTableData.totalRowQuantity
+                if (this.props.isPaginationNeeded) {
+                    const recordsPerPage = this.state.paginationInfo.recordsPerPage
+                    const pageNumber = this.state.paginationInfo.pageNumber
 
-                if (this.isPaginationOnBackEnd(transformedTableData)) {
                     if (
-                        this.props.isPaginationNeeded &&
-                        recordsPerPage !== undefined &&
-                        Math.ceil(newRecordsQuantity / recordsPerPage) < pageNumber &&
-                        newRecordsQuantity !== 0
+                        Math.ceil(totalRecordsQuantity / recordsPerPage) < pageNumber &&
+                    totalRecordsQuantity !== 0
                     ) {
                         this.state.paginationInfo.pageNumber = 1
                         this.setState(this.state)
                         this.updateTableData()
                     }
-                } else {
-                    if (responseData !== undefined) {
-                        if (this.props.isPaginationNeeded && recordsPerPage !== undefined) {
-                            transformedTableData.rows = transformedTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
-                        }
+
+                    if (this.isPaginationOnFrontEnd(responseTableData)) {
+                        responseTableData.rows = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
                     }
                 }
 
                 this.setState({
-                    transformedTableData: transformedTableData.rows,
-                    paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: newRecordsQuantity }
+                    transformedTableData: responseTableData.rows,
+                    paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: totalRecordsQuantity }
                 })
 
                 this.updateWarehouseTableDataByFilterRow()
@@ -123,11 +117,11 @@ class ShipTable extends Component<TableProps> {
             })
     }
 
-    isPaginationOnBackEnd = (data: TransformedResponseData) => {
-        if (data.rows.length === this.state.paginationInfo.recordsPerPage) {
-            return true
-        } else {
+    isPaginationOnFrontEnd = (data: TransformedResponseData) => {
+        if (data.rows.length <= this.state.paginationInfo.recordsPerPage) {
             return false
+        } else {
+            return true
         }
     }
 
@@ -215,7 +209,6 @@ class ShipTable extends Component<TableProps> {
     }
 
     render() {
-
         const columnList = this.props.columnList.map((columnInfo) => {
             columnInfo.renderer = renderHeaderWarehouseTable
             return columnInfo

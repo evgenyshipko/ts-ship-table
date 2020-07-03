@@ -2,7 +2,7 @@ import { TableDataType } from './PublicTypes'
 
 export interface PaginationInfoType {
     pageNumber: number,
-    recordsPerPage: number | undefined,
+    recordsPerPage: number,
     totalRecordsQuantity: number,
 }
 
