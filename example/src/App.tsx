@@ -1,17 +1,16 @@
-// @ts-ignore
 import React, { Component, RefObject } from 'react'
 
 import {
     ShipTable,
-    ColumnItemType,
-    TransformedResponseData
+    ColumnType,
+    TransformedResponseData,
+    RowType
 } from 'ts-ship-table'
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
 import { AxiosResponse } from 'axios'
 import CompletedColumnRender from './renderers/CompletedColumnRender'
-import { RowType } from '../../src'
 
 interface State {
   isPaginationNeeded: boolean
@@ -31,7 +30,7 @@ class App extends Component {
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
 
-   columnInfoList: Array<ColumnItemType> = [
+   columnInfoList: Array<ColumnType> = [
        {
            field: 'userId',
            title: 'id юзера',
@@ -55,11 +54,14 @@ class App extends Component {
     transformResponseData = (response: AxiosResponse) => {
         const responseData: Array<ResponseDataType> = response.data
         const rows: Array<RowType> = responseData.map((row) => {
-            const result: RowType = {
-                id: uuidv4(),
+            const data = {
                 userId: { value: row.userId },
                 title: { value: row.title },
-                completed: { value: row.completed, render: CompletedColumnRender }
+                completed: { value: row.completed, renderer: CompletedColumnRender }
+            }
+            const result: RowType = {
+                id: uuidv4(),
+                data: data
             }
             return result
         })

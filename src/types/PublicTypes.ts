@@ -1,30 +1,17 @@
-import { ComponentType, RefObject } from 'react'
+import { RefObject } from 'react'
 import { AxiosResponse } from 'axios'
-import { TableDataTypeExtended } from './PrivateTypes'
+import {
+    ColumnType as BSColumnType,
+    RowType as BSRowType,
+    RendererProps as BSRendererProps,
+    HeaderRendererProps as BSHeaderRendererProps
+} from 'react-bs-table'
 
-export interface RowType {
-    [key: string]: any,
-}
+export interface RowType extends BSRowType{}
 
-export interface CellType {
-  value: any,
-  funcRenderer?: (tableData: TableDataType, rowData: RowType, columnId: string) => any,
-  render?: ((props: RenderProps) => any) | ComponentType<RenderProps>,
-}
+export interface RendererProps extends BSRendererProps{}
 
-export interface TableDataType {
-  columns: Array<ColumnItemType>,
-  data: Array<RowType>,
-}
-
-export interface ColumnItemType {
-  field: string,
-  title: string,
-  filterEnabled: boolean,
-  class?: string,
-  funcRenderer?: (tableData: TableDataType, headerInfo: ColumnItemType) => any,
-  renderer?: (props: any) => any,
-}
+export interface HeaderRendererProps extends BSHeaderRendererProps{}
 
 export interface AxiosConfigType {
   headers: {[key: string]: any}
@@ -33,7 +20,7 @@ export interface AxiosConfigType {
 export interface TableProps {
   id: string | number,
   dataEndPointPath: string,
-  columnList: Array<ColumnItemType>,
+  columnList: Array<ColumnType>,
   transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData
   axiosConfig?: AxiosConfigType,
   isTestSwitchNeeded?: boolean,
@@ -48,13 +35,6 @@ export interface TransformedResponseData {
     totalRowQuantity: number
 }
 
-export interface RenderProps {
-    tableData: TableDataTypeExtended,
-    rowData: RowType,
-    columnId: string
-}
-
-export interface RenderHeaderProps {
-    tableData: TableDataTypeExtended,
-    headerInfo: ColumnItemType
+export interface ColumnType extends BSColumnType{
+    filterEnabled?: boolean
 }

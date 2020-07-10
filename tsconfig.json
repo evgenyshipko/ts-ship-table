@@ -16,7 +16,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["../src/typings.d.ts", "../src/types/PublicTypes.ts", "../src/types/PrivateTypes.ts"]
+    "typeRoots": ["../src/typings.d.ts", "../src/types/PublicTypes.ts"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "example"]

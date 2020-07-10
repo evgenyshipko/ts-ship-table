@@ -70,7 +70,7 @@
     "@types/uuid": "^8.0.0",
     "antd": "^4.4.0",
     "axios": "^0.19.2",
-    "react-bs-tree-table": "github:bs50/react-bs-tree-table#master",
+    "react-bs-table": "github:bs50/react-bs-table#master",
     "uuid": "^8.2.0"
   }
 }

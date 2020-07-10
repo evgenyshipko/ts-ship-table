@@ -1,4 +1,5 @@
-import { TableDataType } from './PublicTypes'
+import { TableDataType } from 'react-bs-table'
+import { RendererProps, HeaderRendererProps } from './PublicTypes'
 
 export interface PaginationInfoType {
     pageNumber: number,
@@ -22,4 +23,12 @@ export interface TableDataTypeExtended extends TableDataType{
     updateTableData: any,
     toggleSortInfo: any,
     isSortingNeeded: boolean | undefined
+}
+
+export interface InternalRendererProps extends RendererProps{
+    tableData: TableDataTypeExtended
+}
+
+export interface InternalHeaderRendererProps extends HeaderRendererProps{
+    tableData: TableDataTypeExtended
 }

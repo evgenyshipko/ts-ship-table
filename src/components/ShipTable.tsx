@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table } from 'react-bs-tree-table'
+import { Table, RowType } from 'react-bs-table'
 import {
     PaginationInfoType,
     SearchInfoType,
@@ -8,21 +8,22 @@ import {
 } from '../types/PrivateTypes'
 
 import {
-    RowType,
-    TableProps, TransformedResponseData
+    TableProps,
+    TransformedResponseData
 } from '../types/PublicTypes'
 
 import { Button, Pagination, Spin } from 'antd'
 import axios from 'axios'
 import { SearchOutlined } from '@ant-design/icons'
-import { renderFilterCell, renderHeaderWarehouseTable } from '../renderers/ShipTableRenderers'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
 import '../styles/ship_styles.css'
+import RenderHeaderWarehouseTable from '../renderers/RenderHeaderWarehouseTable'
+import RenderFilterCell from '../renderers/RenderFilterCell'
 
 interface State {
     prevPropsId: undefined | number | string
-    transformedTableData: Array<RowType>,
+    transformedTableRows: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
     sortInfo: SortInfoType,
@@ -34,7 +35,7 @@ interface State {
 class ShipTable extends Component<TableProps> {
     state: State = {
         prevPropsId: undefined,
-        transformedTableData: [],
+        transformedTableRows: [],
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
@@ -108,7 +109,7 @@ class ShipTable extends Component<TableProps> {
                 }
 
                 this.setState({
-                    transformedTableData: responseTableData.rows,
+                    transformedTableRows: responseTableData.rows,
                     paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: totalRecordsQuantity }
                 })
 
@@ -163,23 +164,23 @@ class ShipTable extends Component<TableProps> {
             this.props.columnList.forEach((columnData) => {
                 const columnId = columnData.field
                 if (columnData.filterEnabled) {
-                    data[columnId] = { render: renderFilterCell }
+                    data[columnId] = { renderer: RenderFilterCell }
                 }
             })
-            this.state.transformedTableData.unshift(data)
+            this.state.transformedTableRows.unshift(data)
             this.setState(this.state)
         } else {
-            const index = this.state.transformedTableData.findIndex((warehouseRowData) => {
+            const index = this.state.transformedTableRows.findIndex((warehouseRowData) => {
                 return warehouseRowData.id === filterRowId
             })
             if (index >= 0) {
-                this.state.transformedTableData.splice(index, 1)
+                this.state.transformedTableRows.splice(index, 1)
             }
             this.setState(this.state)
         }
 
         console.log('updateWarehouseTableDataByFilterRow')
-        console.log(this.state.transformedTableData)
+        console.log(this.state.transformedTableRows)
     }
 
     toggleSortInfo = (columnId: string) => {
@@ -210,14 +211,14 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         const columnList = this.props.columnList.map((columnInfo) => {
-            columnInfo.renderer = renderHeaderWarehouseTable
+            columnInfo.renderer = RenderHeaderWarehouseTable
             return columnInfo
         })
 
-        const tableDataList = this.state.transformedTableData
+        const transformedRows = this.state.transformedTableRows
         const tableData: TableDataTypeExtended = {
             columns: columnList,
-            data: tableDataList,
+            rows: transformedRows,
             searchInfo: this.state.searchInfo,
             sortInfo: this.state.sortInfo,
             setSearchInfo: this.setSearchInfo,
@@ -227,7 +228,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let pagination = <></>
-        if (tableDataList.length > 0 && this.props.isPaginationNeeded) {
+        if (transformedRows.length > 0 && this.props.isPaginationNeeded) {
             pagination = (
                 <Pagination
                     showSizeChanger
