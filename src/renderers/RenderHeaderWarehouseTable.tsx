@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
-import { InternalHeaderRendererProps } from '../types/PrivateTypes'
+import { HeaderRendererProps } from 'react-bs-table'
 import { SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons'
 
-class RenderHeaderWarehouseTable extends Component<InternalHeaderRendererProps> {
+class RenderHeaderWarehouseTable extends Component<HeaderRendererProps> {
     render() {
-        if (this.props.tableData.isSortingNeeded) {
+        if (
+            this.props.tableData.props !== undefined &&
+            this.props.tableData.props.isSortingNeeded
+        ) {
             let sortIcon = <></>
 
-            if (this.props.tableData.sortInfo.columnId === this.props.columnInfo.field) {
-                if (this.props.tableData.sortInfo.asc) {
+            if (this.props.tableData.props.sortInfo.columnId === this.props.columnInfo.field) {
+                if (this.props.tableData.props.sortInfo.asc) {
                     sortIcon = <SortAscendingOutlined />
                 } else {
                     sortIcon = <SortDescendingOutlined />
@@ -18,8 +21,10 @@ class RenderHeaderWarehouseTable extends Component<InternalHeaderRendererProps> 
             return (
                 <>
                     <span onClick={() => {
-                        this.props.tableData.toggleSortInfo(this.props.columnInfo.field)
-                        this.props.tableData.updateTableData()
+                        if (this.props.tableData.props !== undefined) {
+                            this.props.tableData.props.toggleSortInfo(this.props.columnInfo.field)
+                            this.props.tableData.props.updateTableData()
+                        }
                     }}
                     >
                         {this.props.columnInfo.title}

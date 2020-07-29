@@ -34,7 +34,7 @@ class App extends Component {
        {
            field: 'userId',
            title: 'id юзера',
-           filterEnabled: true,
+           filterType: 'number',
            class: 'userid-column-class'
        },
        {
@@ -46,7 +46,7 @@ class App extends Component {
        {
            field: 'completed',
            title: 'Выполнено?',
-           filterEnabled: false,
+           filterType: 'date',
            class: 'reporter-column-class'
        }
    ]
@@ -105,6 +105,7 @@ class App extends Component {
                     transformResponseDataFunc={this.transformResponseData}
                     isPaginationNeeded={this.state.isPaginationNeeded}
                     ref={this.ref}
+                    isSearchNeeded={true}
                 />
             </div>
         )

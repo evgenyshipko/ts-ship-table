@@ -1,25 +1,27 @@
 import React, { Component } from 'react'
-import { Table, RowType } from 'react-bs-table'
-import {
-    PaginationInfoType,
-    SearchInfoType,
-    SortInfoType,
-    TableDataTypeExtended
-} from '../types/PrivateTypes'
-
-import {
-    TableProps,
-    TransformedResponseData
-} from '../types/PublicTypes'
-
+import { Table, RowType, TableDataType } from 'react-bs-table'
 import { Button, Pagination, Spin } from 'antd'
 import axios from 'axios'
 import { SearchOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
 import '../styles/ship_styles.css'
+import '../styles/renderers.css'
 import RenderHeaderWarehouseTable from '../renderers/RenderHeaderWarehouseTable'
-import RenderFilterCell from '../renderers/RenderFilterCell'
+import RenderTextFilterCell from '../renderers/RenderTextFilterCell'
+import RenderDateFilterCell from '../renderers/RenderDateFilterCell'
+
+import {
+    PaginationInfoType,
+    SearchInfoType,
+    SortInfoType
+} from '../types/PrivateTypes'
+
+import {
+    TableProps,
+    TransformedResponseData
+} from '../types/PublicTypes'
+import RenderNumberFilterCell from "../renderers/RenderNumberFilterCell";
 
 interface State {
     prevPropsId: undefined | number | string
@@ -160,14 +162,19 @@ class ShipTable extends Component<TableProps> {
     updateWarehouseTableDataByFilterRow = () => {
         const filterRowId: string = 'filter'
         if (this.state.isSearchActive) {
-            const data: any = { id: filterRowId, 'tr-el': { class: 'wms-table-filter-row' } }
+            const row: any = { id: filterRowId, 'tr-el': { class: 'wms-table-filter-row' }, data: {} }
             this.props.columnList.forEach((columnData) => {
                 const columnId = columnData.field
                 if (columnData.filterEnabled) {
-                    data[columnId] = { renderer: RenderFilterCell }
+                    row.data[columnId] = { renderer: RenderTextFilterCell }
+                } else if (columnData.filterType === 'date') {
+                    row.data[columnId] = { renderer: RenderDateFilterCell }
+                } else if (columnData.filterType === 'number') {
+                    row.data[columnId] = { renderer: RenderNumberFilterCell }
                 }
             })
-            this.state.transformedTableRows.unshift(data)
+
+            this.state.transformedTableRows.unshift(row)
             this.setState(this.state)
         } else {
             const index = this.state.transformedTableRows.findIndex((warehouseRowData) => {
@@ -216,15 +223,19 @@ class ShipTable extends Component<TableProps> {
         })
 
         const transformedRows = this.state.transformedTableRows
-        const tableData: TableDataTypeExtended = {
-            columns: columnList,
-            rows: transformedRows,
+        const tableDataProps = {
             searchInfo: this.state.searchInfo,
             sortInfo: this.state.sortInfo,
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
             isSortingNeeded: this.props.isSortingNeeded
+        }
+
+        const tableData: TableDataType = {
+            columns: columnList,
+            rows: transformedRows,
+            props: tableDataProps
         }
 
         let pagination = <></>
