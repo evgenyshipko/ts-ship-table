@@ -17,31 +17,35 @@ class RenderDateFilterCell extends Component<RendererProps> {
 
     dateFormat = 'DD/MM/YYYY'
 
-    handleChangeDate = (startDate: moment.Moment | null, endDate: moment.Moment | null, merging: boolean = true) => {
+    handleChangeStartDate = (startDate: moment.Moment | null) => {
         const columnId = this.props.columnId
-        const dateInfo: {
-            startDate?: moment.Moment,
-            endDate?: moment.Moment
-        } = {}
-        if (startDate != null) {
-            dateInfo.startDate = moment(startDate.format('YYYY-MM-DD'), 'YYYY-MM-DD')
-        }
-        if (endDate != null) {
-            dateInfo.endDate = moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD ')
-                .add(23, 'hours').add(59, 'minutes').add(59, 'seconds')
-        }
         if (this.props.tableData.props !== undefined) {
-            const searchInfo = this.props.tableData.props.searchInfo[columnId]
-            let resultObject = {}
-            if (merging) {
-                resultObject = { ...searchInfo, ...dateInfo }
-            } else {
-                resultObject = dateInfo
+            let searchInfo = this.props.tableData.props.searchInfo[columnId]
+            if (searchInfo === undefined) {
+                searchInfo = {}
             }
-            this.props.tableData.props.setSearchInfo(
-                columnId,
-                startDate == null && endDate == null ? undefined : resultObject
-            )
+            if (startDate != null) {
+                searchInfo.startDate = moment(startDate.format('YYYY-MM-DD'), 'YYYY-MM-DD').utcOffset('+0100')
+            } else {
+                delete searchInfo.startDate
+            }
+            this.props.tableData.props.setSearchInfo(columnId, searchInfo)
+        }
+    }
+
+    handleChangeEndDate = (endDate: moment.Moment | null) => {
+        const columnId = this.props.columnId
+        if (this.props.tableData.props !== undefined) {
+            let searchInfo = this.props.tableData.props.searchInfo[columnId]
+            if (searchInfo === undefined) {
+                searchInfo = {}
+            }
+            if (endDate != null) {
+                searchInfo.endDate = moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD').utcOffset('+0100')
+            } else {
+                delete searchInfo.endDate
+            }
+            this.props.tableData.props.setSearchInfo(columnId, searchInfo)
         }
     }
 
@@ -79,7 +83,8 @@ class RenderDateFilterCell extends Component<RendererProps> {
                 <Button
                     className='date-filter-undo-btn'
                     onClick={() => {
-                        this.handleChangeDate(null, null)
+                        this.handleChangeStartDate(null)
+                        this.handleChangeEndDate(null)
                     }}
                     icon={<UndoOutlined />}
                 />
@@ -95,11 +100,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                     format={this.dateFormat}
                     onOpenChange={this.handleStartDateOpenChange}
                     onChange={(eventStartDate: moment.Moment) => {
-                        if (eventStartDate != null) {
-                            this.handleChangeDate(eventStartDate, null)
-                        } else {
-                            this.handleChangeDate(eventStartDate, endDate, false)
-                        }
+                        this.handleChangeStartDate(eventStartDate)
                     }}
                     disabledDate={(currentDate: moment.Moment) => {
                         if (currentDate <= endDate || endDate === undefined) {
@@ -121,11 +122,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                     format={this.dateFormat}
                     onOpenChange={this.handleEndDateOpenChange}
                     onChange={(eventEndDate: moment.Moment) => {
-                        if (eventEndDate != null) {
-                            this.handleChangeDate(null, eventEndDate)
-                        } else {
-                            this.handleChangeDate(startDate, eventEndDate, false)
-                        }
+                        this.handleChangeEndDate(eventEndDate)
                     }}
                     disabledDate={(currentDate: moment.Moment) => {
                         if (startDate <= currentDate || startDate === undefined) {

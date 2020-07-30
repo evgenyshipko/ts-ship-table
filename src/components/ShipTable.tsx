@@ -21,7 +21,7 @@ import {
     TableProps,
     TransformedResponseData
 } from '../types/PublicTypes'
-import RenderNumberFilterCell from "../renderers/RenderNumberFilterCell";
+import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
     prevPropsId: undefined | number | string
@@ -165,12 +165,17 @@ class ShipTable extends Component<TableProps> {
             const row: any = { id: filterRowId, 'tr-el': { class: 'wms-table-filter-row' }, data: {} }
             this.props.columnList.forEach((columnData) => {
                 const columnId = columnData.field
-                if (columnData.filterEnabled) {
+
+                switch (columnData.filterType) {
+                case 'text':
                     row.data[columnId] = { renderer: RenderTextFilterCell }
-                } else if (columnData.filterType === 'date') {
+                    break
+                case 'date':
                     row.data[columnId] = { renderer: RenderDateFilterCell }
-                } else if (columnData.filterType === 'number') {
+                    break
+                case 'number':
                     row.data[columnId] = { renderer: RenderNumberFilterCell }
+                    break
                 }
             })
 

@@ -40,7 +40,7 @@ class App extends Component {
        {
            field: 'title',
            title: 'Название',
-           filterEnabled: true,
+           filterType: 'text',
            class: 'summary-column-class'
        },
        {

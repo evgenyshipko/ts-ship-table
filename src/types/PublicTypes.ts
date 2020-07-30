@@ -37,5 +37,5 @@ export interface TransformedResponseData {
 
 export interface ColumnType extends BSColumnType{
     filterEnabled?: boolean,
-    filterType?: string
+    filterType?: 'text' | 'date' | 'number'
 }
