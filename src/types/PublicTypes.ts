@@ -18,16 +18,17 @@ export interface AxiosConfigType {
 }
 
 export interface TableProps {
-  id: string | number,
-  dataEndPointPath: string,
-  columnList: Array<ColumnType>,
-  transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData
-  axiosConfig?: AxiosConfigType,
-  isTestSwitchNeeded?: boolean,
-  isSearchNeeded?: boolean,
-  isPaginationNeeded?: boolean,
-  isSortingNeeded?:boolean,
-  ref?: RefObject<any>
+      id: string | number,
+      dataEndPointPath: string,
+      columnList: Array<ColumnType>,
+      transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData
+      axiosConfig?: AxiosConfigType,
+      isTestSwitchNeeded?: boolean,
+      isSearchNeeded?: boolean,
+      isPaginationNeeded?: boolean,
+      isSortingNeeded?:boolean,
+      ref?: RefObject<any>,
+    htmlParams?: Object
 }
 
 export interface TransformedResponseData {

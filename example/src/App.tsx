@@ -106,6 +106,7 @@ class App extends Component {
                     isPaginationNeeded={this.state.isPaginationNeeded}
                     ref={this.ref}
                     isSearchNeeded={true}
+                    htmlParams={{ hi: 1, hello: 10 }}
                 />
             </div>
         )

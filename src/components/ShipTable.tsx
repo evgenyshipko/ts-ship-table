@@ -139,6 +139,13 @@ class ShipTable extends Component<TableProps> {
         if (this.state.sortInfo.columnId !== undefined) {
             params += '&sort_data=' + JSON.stringify({ column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc })
         }
+        if (this.props.htmlParams !== undefined) {
+            Object.keys(this.props.htmlParams).forEach((key) => {
+                if (this.props.htmlParams !== undefined) {
+                    params += `&${key}=${this.props.htmlParams[key]}`
+                }
+            })
+        }
         return params
     }
 
