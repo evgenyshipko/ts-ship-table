@@ -100,7 +100,7 @@ class App extends Component {
                 {pbtn}
                 <ShipTable
                     id={uuidv4()}
-                    dataEndPointPath={this.endPointPath}
+                    dataUrl={this.endPointPath}
                     columnList={this.columnInfoList}
                     transformResponseDataFunc={this.transformResponseData}
                     isPaginationNeeded={this.state.isPaginationNeeded}

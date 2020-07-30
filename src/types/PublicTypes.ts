@@ -19,16 +19,17 @@ export interface AxiosConfigType {
 
 export interface TableProps {
       id: string | number,
-      dataEndPointPath: string,
+      dataUrl: string,
       columnList: Array<ColumnType>,
-      transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData
+      requestDataFunc?: (success: (response: AxiosResponse) => void, requestParams: string) => void,
+      transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData,
       axiosConfig?: AxiosConfigType,
       isTestSwitchNeeded?: boolean,
       isSearchNeeded?: boolean,
       isPaginationNeeded?: boolean,
       isSortingNeeded?:boolean,
       ref?: RefObject<any>,
-    htmlParams?: Object
+      htmlParams?: Object
 }
 
 export interface TransformedResponseData {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Table, RowType, TableDataType } from 'react-bs-table'
 import { Button, Pagination, Spin } from 'antd'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { SearchOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
@@ -67,11 +67,45 @@ class ShipTable extends Component<TableProps> {
         }
     }
 
+    successFunc = (response: AxiosResponse) => {
+        let responseTableData: TransformedResponseData
+        if (this.props.transformResponseDataFunc !== undefined) {
+            responseTableData = this.props.transformResponseDataFunc(response)
+        } else {
+            responseTableData = response.data
+        }
+
+        const totalRecordsQuantity = responseTableData.totalRowQuantity
+        if (this.props.isPaginationNeeded) {
+            const recordsPerPage = this.state.paginationInfo.recordsPerPage
+            const pageNumber = this.state.paginationInfo.pageNumber
+
+            if (
+                Math.ceil(totalRecordsQuantity / recordsPerPage) < pageNumber &&
+                totalRecordsQuantity !== 0
+            ) {
+                this.state.paginationInfo.pageNumber = 1
+                this.setState(this.state)
+                this.updateTableData()
+            }
+
+            if (this.isPaginationOnFrontEnd(responseTableData)) {
+                responseTableData.rows = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
+            }
+        }
+
+        this.setState({
+            transformedTableRows: responseTableData.rows,
+            paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: totalRecordsQuantity }
+        })
+
+        this.updateWarehouseTableDataByFilterRow()
+        this.toggleDataLoadingSpin()
+    }
+
     updateTableData = () => {
         this.toggleDataLoadingSpin()
-        const path = this.props.dataEndPointPath + this.getRequestWarehouseDataParams()
         console.log('updateTableData')
-        console.log(`request path: ${path}`)
 
         let axiosConfig = this.props.axiosConfig
         if (axiosConfig === undefined) {
@@ -82,42 +116,15 @@ class ShipTable extends Component<TableProps> {
             }
         }
 
-        axios.get(path, axiosConfig)
-            .then(response => {
-                let responseTableData: TransformedResponseData
-                if (this.props.transformResponseDataFunc !== undefined) {
-                    responseTableData = this.props.transformResponseDataFunc(response)
-                } else {
-                    responseTableData = response.data
-                }
-
-                const totalRecordsQuantity = responseTableData.totalRowQuantity
-                if (this.props.isPaginationNeeded) {
-                    const recordsPerPage = this.state.paginationInfo.recordsPerPage
-                    const pageNumber = this.state.paginationInfo.pageNumber
-
-                    if (
-                        Math.ceil(totalRecordsQuantity / recordsPerPage) < pageNumber &&
-                    totalRecordsQuantity !== 0
-                    ) {
-                        this.state.paginationInfo.pageNumber = 1
-                        this.setState(this.state)
-                        this.updateTableData()
-                    }
-
-                    if (this.isPaginationOnFrontEnd(responseTableData)) {
-                        responseTableData.rows = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
-                    }
-                }
-
-                this.setState({
-                    transformedTableRows: responseTableData.rows,
-                    paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: totalRecordsQuantity }
-                })
-
-                this.updateWarehouseTableDataByFilterRow()
-                this.toggleDataLoadingSpin()
+        if (this.props.requestDataFunc === undefined) {
+            const path = this.props.dataUrl + this.getRequestDataParams()
+            console.log(`request path: ${path}`)
+            axios.get(path, axiosConfig).then(response => {
+                this.successFunc(response)
             })
+        } else {
+            this.props.requestDataFunc(this.successFunc, this.getRequestDataParams())
+        }
     }
 
     isPaginationOnFrontEnd = (data: TransformedResponseData) => {
@@ -128,7 +135,7 @@ class ShipTable extends Component<TableProps> {
         }
     }
 
-    getRequestWarehouseDataParams = () => {
+    getRequestDataParams = () => {
         let params = '?test_mode=' + this.state.isTestModeActive
         if (this.props.isPaginationNeeded) {
             params += '&records_per_page=' + this.state.paginationInfo.recordsPerPage + '&page_number=' + this.state.paginationInfo.pageNumber
