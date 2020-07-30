@@ -17,7 +17,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
 
     dateFormat = 'DD/MM/YYYY'
 
-    handleChangeDate = (startDate: moment.Moment | null, endDate: moment.Moment | null) => {
+    handleChangeDate = (startDate: moment.Moment | null, endDate: moment.Moment | null, merging: boolean = true) => {
         const columnId = this.props.columnId
         const dateInfo: {
             startDate?: moment.Moment,
@@ -32,10 +32,15 @@ class RenderDateFilterCell extends Component<RendererProps> {
         }
         if (this.props.tableData.props !== undefined) {
             const searchInfo = this.props.tableData.props.searchInfo[columnId]
-
+            let resultObject = {}
+            if (merging) {
+                resultObject = { ...searchInfo, ...dateInfo }
+            } else {
+                resultObject = dateInfo
+            }
             this.props.tableData.props.setSearchInfo(
                 columnId,
-                startDate == null && endDate == null ? undefined : { ...searchInfo, ...dateInfo }
+                startDate == null && endDate == null ? undefined : resultObject
             )
         }
     }
@@ -89,8 +94,12 @@ class RenderDateFilterCell extends Component<RendererProps> {
                     placeholder='Начало'
                     format={this.dateFormat}
                     onOpenChange={this.handleStartDateOpenChange}
-                    onChange={(startDate: moment.Moment) => {
-                        this.handleChangeDate(startDate, null)
+                    onChange={(eventStartDate: moment.Moment) => {
+                        if (eventStartDate != null) {
+                            this.handleChangeDate(eventStartDate, null)
+                        } else {
+                            this.handleChangeDate(eventStartDate, endDate, false)
+                        }
                     }}
                     disabledDate={(currentDate: moment.Moment) => {
                         if (currentDate <= endDate || endDate === undefined) {
@@ -111,8 +120,12 @@ class RenderDateFilterCell extends Component<RendererProps> {
                     placeholder='Окончание'
                     format={this.dateFormat}
                     onOpenChange={this.handleEndDateOpenChange}
-                    onChange={(endDate: moment.Moment) => {
-                        this.handleChangeDate(null, endDate)
+                    onChange={(eventEndDate: moment.Moment) => {
+                        if (eventEndDate != null) {
+                            this.handleChangeDate(null, eventEndDate)
+                        } else {
+                            this.handleChangeDate(startDate, eventEndDate, false)
+                        }
                     }}
                     disabledDate={(currentDate: moment.Moment) => {
                         if (startDate <= currentDate || startDate === undefined) {
