@@ -111,8 +111,7 @@ class ShipTable extends Component<TableProps> {
         if (typeof this.props.requestConfig !== 'object') {
             this.props.requestConfig(this.successFunc, this.getRequestDataParams())
         } else {
-            const path = this.props.requestConfig.dataUrl + this.getRequestDataParams()
-
+            const path = this.props.requestConfig.dataUrl + this.getRequestDataParamsString()
             let axiosConfig = this.props.requestConfig.axiosConfig
             if (axiosConfig === undefined) {
                 axiosConfig = {
@@ -138,25 +137,40 @@ class ShipTable extends Component<TableProps> {
     }
 
     getRequestDataParams = () => {
-        let params = '?test_mode=' + this.state.isTestModeActive
+        let params: any = { test_mode: this.state.isTestModeActive }
         if (this.props.options?.isPaginationNeeded) {
-            params += '&records_per_page=' + this.state.paginationInfo.recordsPerPage + '&page_number=' + this.state.paginationInfo.pageNumber
+            params.records_per_page = this.state.paginationInfo.recordsPerPage
+            params.page_number = this.state.paginationInfo.pageNumber
         }
         if (Object.keys(this.state.searchInfo).length > 0) {
-            params += '&search_info=' + JSON.stringify(this.state.searchInfo)
+            params.searchInfo = this.state.searchInfo
         }
         if (this.state.sortInfo.columnId !== undefined) {
-            params += '&sort_data=' + JSON.stringify({ column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc })
+            params.sort_data = { column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc }
         }
         if (typeof this.props.requestConfig === 'object') {
             const urlParams = this.props.requestConfig.urlParams
             if (urlParams !== undefined) {
-                Object.keys(urlParams).forEach((key) => {
-                    params += `&${key}=${urlParams[key]}`
-                })
+                params = { ...params, ...urlParams }
             }
         }
         return params
+    }
+
+    getRequestDataParamsString = () => {
+        let paramsStr: string = ''
+        const paramsObj = this.getRequestDataParams()
+        if (paramsObj !== undefined) {
+            Object.keys(paramsObj).forEach((key, index) => {
+                if (index === 0) {
+                    paramsStr += '?'
+                } else {
+                    paramsStr += '&'
+                }
+                paramsStr += `${key}=${JSON.stringify(paramsObj[key])}`
+            })
+        }
+        return paramsStr
     }
 
     handlePaginationParameters = (current: number, pageSize: number | undefined) => {
@@ -207,9 +221,6 @@ class ShipTable extends Component<TableProps> {
             }
             this.setState(this.state)
         }
-
-        console.log('updateWarehouseTableDataByFilterRow')
-        console.log(this.state.transformedTableRows)
     }
 
     toggleSortInfo = (columnId: string) => {
@@ -335,4 +346,3 @@ class ShipTable extends Component<TableProps> {
 }
 
 export { ShipTable }
-

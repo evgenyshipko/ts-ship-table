@@ -20,7 +20,7 @@ export interface AxiosConfigType {
 export interface TableProps {
     id: string | number,
     columns: Array<ColumnType>,
-    requestConfig: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: string) => void),
+    requestConfig: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: {[key: string]: any}) => void),
     responseTransformer?: (arg0: AxiosResponse) => TransformedResponseData,
     options?: TableOptions,
     ref?: RefObject<any>,
