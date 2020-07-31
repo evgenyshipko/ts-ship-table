@@ -100,13 +100,11 @@ class App extends Component {
                 {pbtn}
                 <ShipTable
                     id={uuidv4()}
-                    dataUrl={this.endPointPath}
-                    columnList={this.columnInfoList}
-                    transformResponseDataFunc={this.transformResponseData}
-                    isPaginationNeeded={this.state.isPaginationNeeded}
+                    requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}
+                    columns={this.columnInfoList}
+                    responseTransformer={this.transformResponseData}
+                    options={{ isPaginationNeeded: this.state.isPaginationNeeded, isSearchNeeded: true }}
                     ref={this.ref}
-                    isSearchNeeded={true}
-                    htmlParams={{ hi: 1, hello: 10 }}
                 />
             </div>
         )

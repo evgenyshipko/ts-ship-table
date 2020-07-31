@@ -59,9 +59,9 @@ class ShipTable extends Component<TableProps> {
 
     componentDidUpdate(prevProps : TableProps) {
         if (
-            this.props.isPaginationNeeded !== prevProps.isPaginationNeeded ||
-            this.props.isSearchNeeded !== prevProps.isSearchNeeded ||
-            this.props.isTestSwitchNeeded !== prevProps.isTestSwitchNeeded
+            this.props.options?.isPaginationNeeded !== prevProps.options?.isPaginationNeeded ||
+            this.props.options?.isSearchNeeded !== prevProps.options?.isSearchNeeded ||
+            this.props.options?.isTestSwitchNeeded !== prevProps.options?.isTestSwitchNeeded
         ) {
             this.updateTableData()
         }
@@ -69,14 +69,14 @@ class ShipTable extends Component<TableProps> {
 
     successFunc = (response: AxiosResponse) => {
         let responseTableData: TransformedResponseData
-        if (this.props.transformResponseDataFunc !== undefined) {
-            responseTableData = this.props.transformResponseDataFunc(response)
+        if (this.props.responseTransformer !== undefined) {
+            responseTableData = this.props.responseTransformer(response)
         } else {
             responseTableData = response.data
         }
 
         const totalRecordsQuantity = responseTableData.totalRowQuantity
-        if (this.props.isPaginationNeeded) {
+        if (this.props.options?.isPaginationNeeded) {
             const recordsPerPage = this.state.paginationInfo.recordsPerPage
             const pageNumber = this.state.paginationInfo.pageNumber
 
@@ -107,23 +107,24 @@ class ShipTable extends Component<TableProps> {
         this.toggleDataLoadingSpin()
         console.log('updateTableData')
 
-        let axiosConfig = this.props.axiosConfig
-        if (axiosConfig === undefined) {
-            axiosConfig = {
-                headers: {
-                    'Content-Type': 'application/json'
+        if (typeof this.props.requestConfig !== 'object') {
+            this.props.requestConfig(this.successFunc, this.getRequestDataParams())
+        } else {
+            const path = this.props.requestConfig.dataUrl + this.getRequestDataParams()
+
+            let axiosConfig = this.props.requestConfig.axiosConfig
+            if (axiosConfig === undefined) {
+                axiosConfig = {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
             }
-        }
 
-        if (this.props.requestDataFunc === undefined) {
-            const path = this.props.dataUrl + this.getRequestDataParams()
             console.log(`request path: ${path}`)
             axios.get(path, axiosConfig).then(response => {
                 this.successFunc(response)
             })
-        } else {
-            this.props.requestDataFunc(this.successFunc, this.getRequestDataParams())
         }
     }
 
@@ -137,7 +138,7 @@ class ShipTable extends Component<TableProps> {
 
     getRequestDataParams = () => {
         let params = '?test_mode=' + this.state.isTestModeActive
-        if (this.props.isPaginationNeeded) {
+        if (this.props.options?.isPaginationNeeded) {
             params += '&records_per_page=' + this.state.paginationInfo.recordsPerPage + '&page_number=' + this.state.paginationInfo.pageNumber
         }
         if (Object.keys(this.state.searchInfo).length > 0) {
@@ -146,12 +147,13 @@ class ShipTable extends Component<TableProps> {
         if (this.state.sortInfo.columnId !== undefined) {
             params += '&sort_data=' + JSON.stringify({ column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc })
         }
-        if (this.props.htmlParams !== undefined) {
-            Object.keys(this.props.htmlParams).forEach((key) => {
-                if (this.props.htmlParams !== undefined) {
-                    params += `&${key}=${this.props.htmlParams[key]}`
-                }
-            })
+        if (typeof this.props.requestConfig === 'object') {
+            const urlParams = this.props.requestConfig.urlParams
+            if (urlParams !== undefined) {
+                Object.keys(urlParams).forEach((key) => {
+                    params += `&${key}=${urlParams[key]}`
+                })
+            }
         }
         return params
     }
@@ -177,7 +179,7 @@ class ShipTable extends Component<TableProps> {
         const filterRowId: string = 'filter'
         if (this.state.isSearchActive) {
             const row: any = { id: filterRowId, 'tr-el': { class: 'wms-table-filter-row' }, data: {} }
-            this.props.columnList.forEach((columnData) => {
+            this.props.columns.forEach((columnData) => {
                 const columnId = columnData.field
 
                 switch (columnData.filterType) {
@@ -236,7 +238,7 @@ class ShipTable extends Component<TableProps> {
     }
 
     render() {
-        const columnList = this.props.columnList.map((columnInfo) => {
+        const columnList = this.props.columns.map((columnInfo) => {
             columnInfo.renderer = RenderHeaderWarehouseTable
             return columnInfo
         })
@@ -248,7 +250,7 @@ class ShipTable extends Component<TableProps> {
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
-            isSortingNeeded: this.props.isSortingNeeded
+            isSortingNeeded: this.props.options?.isSortingNeeded
         }
 
         const tableData: TableDataType = {
@@ -258,7 +260,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let pagination = <></>
-        if (transformedRows.length > 0 && this.props.isPaginationNeeded) {
+        if (transformedRows.length > 0 && this.props.options?.isPaginationNeeded) {
             pagination = (
                 <Pagination
                     showSizeChanger
@@ -273,7 +275,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let testModeToggleDiv = <></>
-        if (this.props.isTestSwitchNeeded) {
+        if (this.props.options?.isTestSwitchNeeded) {
             testModeToggleDiv = (
                 <div className='textSwitchDiv'>
                     <TextSwitch
@@ -296,7 +298,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let searchButton = <></>
-        if (this.props.isSearchNeeded) {
+        if (this.props.options?.isSearchNeeded) {
             searchButton = (
                 <Button
                     icon={<SearchOutlined />}

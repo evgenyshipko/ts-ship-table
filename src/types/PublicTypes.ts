@@ -18,18 +18,25 @@ export interface AxiosConfigType {
 }
 
 export interface TableProps {
-      id: string | number,
-      dataUrl: string,
-      columnList: Array<ColumnType>,
-      requestDataFunc?: (success: (response: AxiosResponse) => void, requestParams: string) => void,
-      transformResponseDataFunc?: (arg0: AxiosResponse) => TransformedResponseData,
-      axiosConfig?: AxiosConfigType,
-      isTestSwitchNeeded?: boolean,
-      isSearchNeeded?: boolean,
-      isPaginationNeeded?: boolean,
-      isSortingNeeded?:boolean,
-      ref?: RefObject<any>,
-      htmlParams?: Object
+    id: string | number,
+    columns: Array<ColumnType>,
+    requestConfig: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: string) => void),
+    responseTransformer?: (arg0: AxiosResponse) => TransformedResponseData,
+    options?: TableOptions,
+    ref?: RefObject<any>,
+}
+
+export interface RequestFuncOptions {
+    dataUrl: string,
+    urlParams?: {[key: string]: any},
+    axiosConfig?: AxiosConfigType,
+}
+
+export interface TableOptions {
+    isTestSwitchNeeded?: boolean,
+    isSearchNeeded?: boolean,
+    isPaginationNeeded?: boolean,
+    isSortingNeeded?:boolean,
 }
 
 export interface TransformedResponseData {
