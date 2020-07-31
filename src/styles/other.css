@@ -1,0 +1,39 @@
+
+.first-line{
+    display: inline-block;
+    background-color: white;
+    z-index: 1;
+    width: 100%;
+}
+
+.search-btn{
+    display: inline-block;
+    margin: 3px;
+    vertical-align: middle;
+}
+
+.loading-spin{
+    display: inline-block;
+    margin-left: 120px;
+    vertical-align: middle;
+    position: absolute;
+}
+
+.ant-pagination{
+    display: inline-block;
+    margin: 3px;
+    vertical-align: middle;
+    margin-left: 10%;
+}
+
+.text-switch-div{
+    display: inline-block;
+    vertical-align: middle;
+    margin: 3px;
+    margin-right: 20px;
+}
+
+.text-switch{
+    margin-bottom: 2px;
+    margin-left: 5px;
+}

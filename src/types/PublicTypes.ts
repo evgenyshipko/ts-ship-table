@@ -33,6 +33,7 @@ export interface RequestFuncOptions {
 }
 
 export interface TableOptions {
+    styledTable?: boolean,
     isTestSwitchNeeded?: boolean,
     isSearchNeeded?: boolean,
     isPaginationNeeded?: boolean,

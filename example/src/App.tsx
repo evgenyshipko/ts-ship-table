@@ -25,7 +25,7 @@ interface ResponseDataType {
 
 class App extends Component {
   state: State = {
-      isPaginationNeeded: true
+      isPaginationNeeded: false
   }
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
@@ -103,7 +103,7 @@ class App extends Component {
                     requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}
                     columns={this.columnInfoList}
                     responseTransformer={this.transformResponseData}
-                    options={{ isPaginationNeeded: this.state.isPaginationNeeded, isSearchNeeded: true }}
+                    options={{ isPaginationNeeded: this.state.isPaginationNeeded, isSearchNeeded: true, styledTable: true }}
                     ref={this.ref}
                 />
             </div>

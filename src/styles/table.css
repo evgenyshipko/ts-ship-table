@@ -1,0 +1,39 @@
+
+.ship-table-div-styled, .ship-table-div{
+    display: table;
+    margin: 0 auto;
+}
+
+.ship-table-div-styled table,
+.ship-table-div table,
+.ship-table-div tr,
+.ship-table-div-styled tr,
+.ship-table-div th,
+.ship-table-div-styled th,
+.ship-table-div td,
+.ship-table-div-styled td{
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+}
+
+.ship-table-div-styled th {
+    top: 0;
+    z-index: 1;
+    position: sticky;
+}
+
+.ship-table-div-styled .filter-row td{
+    position: sticky;
+    top: calc(43px);
+    z-index: 1;
+    background-color: white;
+}
+
+.ship-table-div-styled th {
+    padding: 10px;
+    background-color: gainsboro;
+}
+
+.ship-table-div-styled td {
+    padding: 10px;
+}

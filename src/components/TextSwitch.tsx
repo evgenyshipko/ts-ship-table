@@ -13,7 +13,7 @@ class TextSwitch extends Component<TextSwitchProps> {
             <div>
                 {this.props.text}
                 <Switch
-                    className='textSwitch'
+                    className='text-switch'
                     onChange={() => {
                         this.props.onChange()
                     }}

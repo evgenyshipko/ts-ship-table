@@ -5,8 +5,9 @@ import axios, { AxiosResponse } from 'axios'
 import { SearchOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
-import '../styles/ship_styles.css'
+import '../styles/table.css'
 import '../styles/renderers.css'
+import '../styles/other.css'
 import RenderHeaderWarehouseTable from '../renderers/RenderHeaderWarehouseTable'
 import RenderTextFilterCell from '../renderers/RenderTextFilterCell'
 import RenderDateFilterCell from '../renderers/RenderDateFilterCell'
@@ -178,7 +179,7 @@ class ShipTable extends Component<TableProps> {
     updateWarehouseTableDataByFilterRow = () => {
         const filterRowId: string = 'filter'
         if (this.state.isSearchActive) {
-            const row: any = { id: filterRowId, 'tr-el': { class: 'wms-table-filter-row' }, data: {} }
+            const row: any = { id: filterRowId, class: 'filter-row', data: {} }
             this.props.columns.forEach((columnData) => {
                 const columnId = columnData.field
 
@@ -277,7 +278,7 @@ class ShipTable extends Component<TableProps> {
         let testModeToggleDiv = <></>
         if (this.props.options?.isTestSwitchNeeded) {
             testModeToggleDiv = (
-                <div className='textSwitchDiv'>
+                <div className='text-switch-div'>
                     <TextSwitch
                         text='Тест'
                         onChange={this.handleTestMode}
@@ -291,7 +292,7 @@ class ShipTable extends Component<TableProps> {
         if (this.state.isDataLoadingSpinActive) {
             spin = (
                 <Spin
-                    className='loadingSpin'
+                    className='loading-spin'
                     size='large'
                 />
             )
@@ -302,7 +303,7 @@ class ShipTable extends Component<TableProps> {
             searchButton = (
                 <Button
                     icon={<SearchOutlined />}
-                    className='searchBtn'
+                    className='search-btn'
                     onClick={() => {
                         this.toggleSearchActive()
                     }}
@@ -312,9 +313,14 @@ class ShipTable extends Component<TableProps> {
             )
         }
 
+        let mainDivClassName = 'ship-table-div'
+        if (this.props.options?.styledTable) {
+            mainDivClassName = 'ship-table-div-styled'
+        }
+
         return (
-            <div className='mainTableDiv'>
-                <div className='firstLine'>
+            <div className={mainDivClassName}>
+                <div className='first-line'>
                     {testModeToggleDiv}
                     {spin}
                     {searchButton}
@@ -329,3 +335,4 @@ class ShipTable extends Component<TableProps> {
 }
 
 export { ShipTable }
+
