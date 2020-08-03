@@ -135,15 +135,19 @@ class RenderDateFilterCell extends Component<RendererProps> {
             )
 
             return (
-                <div>
-                    <div className='date-filter-cell-div-first-line'>
-                        {startDatePicker}
-                        {searchButton}
-                    </div>
-                    <div className='date-filter-cell-div-second-line'>
-                        {endDatePicker}
-                        {cancelButton}
-                    </div>
+                <div className='ship-date-filter-table-div'>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>{startDatePicker}</td>
+                                <td>{searchButton}</td>
+                            </tr>
+                            <tr>
+                                <td>{endDatePicker}</td>
+                                <td>{cancelButton}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             )
         } else {

@@ -12,7 +12,6 @@ interface NumberInfoType {
 }
 
 class RenderNumberFilterCell extends Component<RendererProps> {
-
     handleChangeNumber = (minValue: any, maxValue: any) => {
         const numberInfo: NumberInfoType = {}
         if (minValue != null) {
@@ -45,48 +44,59 @@ class RenderNumberFilterCell extends Component<RendererProps> {
 
     render() {
         if (this.props.tableData.props !== undefined) {
-
             const min = this.props.tableData.props.searchInfo[this.props.columnId]?.minValue
             const max = this.props.tableData.props.searchInfo[this.props.columnId]?.maxValue
 
             return (
-                <div>
-                    <div className='number-filter-cell-first-div'>
-                        <InputNumber
-                            className='input-min-value'
-                            value={min}
-                            max={max}
-                            onChange={(value) => {
-                                this.handleChangeNumber(value, null)
-                            }}
-                            placeholder='От'
-                        />
-                        <Button
-                            className='number-filter-cell-search-btn'
-                            onClick={() => {
-                                this.updateTableDataBySearch()
-                            }}
-                            icon={<SearchOutlined />}
-                        />
-                    </div>
-                    <div className='number-filter-cell-second-div'>
-                        <InputNumber
-                            className='input-max-value'
-                            value={max}
-                            min={min}
-                            onChange={(value) => {
-                                this.handleChangeNumber(null, value)
-                            }}
-                            placeholder='До'
-                        />
-                        <Button
-                            className='number-filter-cell-undo-btn'
-                            onClick={() => {
-                                this.handleChangeNumber(null, null)
-                            }}
-                            icon={<UndoOutlined />}
-                        />
-                    </div>
+                <div className='ship-number-filter-table-div'>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <InputNumber
+                                        className='input-min-value'
+                                        value={min}
+                                        max={max}
+                                        onChange={(value) => {
+                                            this.handleChangeNumber(value, null)
+                                        }}
+                                        placeholder='От'
+                                    />
+                                </td>
+                                <td>
+                                    <Button
+                                        className='number-filter-cell-search-btn'
+                                        onClick={() => {
+                                            this.updateTableDataBySearch()
+                                        }}
+                                        icon={<SearchOutlined />}
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <InputNumber
+                                        className='input-max-value'
+                                        value={max}
+                                        min={min}
+                                        onChange={(value) => {
+                                            this.handleChangeNumber(null, value)
+                                        }}
+                                        placeholder='До'
+                                    />
+                                </td>
+                                <td>
+                                    <Button
+                                        className='number-filter-cell-undo-btn'
+                                        onClick={() => {
+                                            this.handleChangeNumber(null, null)
+                                        }}
+                                        icon={<UndoOutlined />}
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             )
         } else {

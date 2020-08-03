@@ -22,13 +22,6 @@
     position: sticky;
 }
 
-.ship-table-div-styled .filter-row td{
-    position: sticky;
-    top: calc(43px);
-    z-index: 1;
-    background-color: white;
-}
-
 .ship-table-div-styled th {
     padding: 10px;
     background-color: gainsboro;
@@ -36,4 +29,23 @@
 
 .ship-table-div-styled td {
     padding: 10px;
+}
+
+.ship-table-div-styled .filter-row td{
+    position: sticky;
+    top: calc(43px);
+    z-index: 1;
+    background-color: white;
+}
+
+.ship-date-filter-table-div table,
+.ship-date-filter-table-div td,
+.ship-date-filter-table-div tr,
+.ship-date-filter-table-div th,
+.ship-number-filter-table-div table,
+.ship-number-filter-table-div td,
+.ship-number-filter-table-div th,
+.ship-number-filter-table-div tr{
+    border: 0px solid #ddd;
+    padding: 0px;
 }
