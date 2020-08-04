@@ -136,7 +136,7 @@ class ShipTable extends Component<TableProps> {
     }
 
     getRequestDataParams = () => {
-        let params: any = { test_mode: this.state.isTestModeActive }
+        let params: any = { testMode: this.state.isTestModeActive }
         if (this.props.options?.pagination) {
             params.recordsPerPage = this.state.paginationInfo.recordsPerPage
             params.pageNumber = this.state.paginationInfo.pageNumber
