@@ -59,9 +59,9 @@ class ShipTable extends Component<TableProps> {
 
     componentDidUpdate(prevProps : TableProps) {
         if (
-            this.props.options?.isPaginationNeeded !== prevProps.options?.isPaginationNeeded ||
-            this.props.options?.isSearchNeeded !== prevProps.options?.isSearchNeeded ||
-            this.props.options?.isTestSwitchNeeded !== prevProps.options?.isTestSwitchNeeded
+            this.props.options?.pagination !== prevProps.options?.pagination ||
+            this.props.options?.search !== prevProps.options?.search ||
+            this.props.options?.testSwitch !== prevProps.options?.testSwitch
         ) {
             this.updateTableData()
         }
@@ -76,7 +76,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         const totalRecordsQuantity = responseTableData.totalRowQuantity
-        if (this.props.options?.isPaginationNeeded) {
+        if (this.props.options?.pagination) {
             const recordsPerPage = this.state.paginationInfo.recordsPerPage
             const pageNumber = this.state.paginationInfo.pageNumber
 
@@ -137,15 +137,15 @@ class ShipTable extends Component<TableProps> {
 
     getRequestDataParams = () => {
         let params: any = { test_mode: this.state.isTestModeActive }
-        if (this.props.options?.isPaginationNeeded) {
-            params.records_per_page = this.state.paginationInfo.recordsPerPage
-            params.page_number = this.state.paginationInfo.pageNumber
+        if (this.props.options?.pagination) {
+            params.recordsPerPage = this.state.paginationInfo.recordsPerPage
+            params.pageNumber = this.state.paginationInfo.pageNumber
         }
         if (Object.keys(this.state.searchInfo).length > 0) {
             params.searchInfo = this.state.searchInfo
         }
         if (this.state.sortInfo.columnId !== undefined) {
-            params.sort_data = { column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc }
+            params.sortData = { column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc }
         }
         if (typeof this.props.requestConfig === 'object') {
             const urlParams = this.props.requestConfig.urlParams
@@ -261,7 +261,7 @@ class ShipTable extends Component<TableProps> {
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
-            isSortingNeeded: this.props.options?.isSortingNeeded
+            isSortingNeeded: this.props.options?.sorting
         }
 
         const tableData: TableDataType = {
@@ -271,24 +271,26 @@ class ShipTable extends Component<TableProps> {
         }
 
         let pagination = <></>
-        if (transformedRows.length > 0 && this.props.options?.isPaginationNeeded) {
+        if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (
-                <Pagination
-                    showSizeChanger
-                    onChange={this.handlePaginationParameters}
-                    onShowSizeChange={this.handlePaginationParameters}
-                    defaultCurrent={this.state.paginationInfo.pageNumber}
-                    current={this.state.paginationInfo.pageNumber}
-                    pageSize={this.state.paginationInfo.recordsPerPage}
-                    total={this.state.paginationInfo.totalRecordsQuantity}
-                />
+                <div className='ant-pagination-div'>
+                    <Pagination
+                        showSizeChanger
+                        onChange={this.handlePaginationParameters}
+                        onShowSizeChange={this.handlePaginationParameters}
+                        defaultCurrent={this.state.paginationInfo.pageNumber}
+                        current={this.state.paginationInfo.pageNumber}
+                        pageSize={this.state.paginationInfo.recordsPerPage}
+                        total={this.state.paginationInfo.totalRecordsQuantity}
+                    />
+                </div>
             )
         }
 
         let testModeToggleDiv = <></>
-        if (this.props.options?.isTestSwitchNeeded) {
+        if (this.props.options?.testSwitch) {
             testModeToggleDiv = (
-                <div className='text-switch-div'>
+                <div className='ship-text-switch-div'>
                     <TextSwitch
                         text='Тест'
                         onChange={this.handleTestMode}
@@ -302,18 +304,18 @@ class ShipTable extends Component<TableProps> {
         if (this.state.isDataLoadingSpinActive) {
             spin = (
                 <Spin
-                    className='loading-spin'
+                    className='ship-loading-spin'
                     size='large'
                 />
             )
         }
 
         let searchButton = <></>
-        if (this.props.options?.isSearchNeeded) {
+        if (this.props.options?.search) {
             searchButton = (
                 <Button
                     icon={<SearchOutlined />}
-                    className='search-btn'
+                    className='ship-search-btn'
                     onClick={() => {
                         this.toggleSearchActive()
                     }}
@@ -330,7 +332,7 @@ class ShipTable extends Component<TableProps> {
 
         return (
             <div className={mainDivClassName}>
-                <div className='first-line'>
+                <div className='ship-first-line'>
                     {testModeToggleDiv}
                     {spin}
                     {searchButton}

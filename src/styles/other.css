@@ -1,39 +1,39 @@
 
-.first-line{
-    display: inline-block;
+.ship-first-line{
+    display: block;
     background-color: white;
     z-index: 1;
-    width: 100%;
+    width: 750px;
 }
 
-.search-btn{
+.ship-search-btn{
     display: inline-block;
     margin: 3px;
     vertical-align: middle;
 }
 
-.loading-spin{
+.ship-loading-spin{
     display: inline-block;
     margin-left: 120px;
     vertical-align: middle;
     position: absolute;
 }
 
-.ant-pagination{
+.ant-pagination-div{
     display: inline-block;
     margin: 3px;
     vertical-align: middle;
     margin-left: 10%;
 }
 
-.text-switch-div{
+.ship-text-switch-div{
     display: inline-block;
     vertical-align: middle;
     margin: 3px;
     margin-right: 20px;
 }
 
-.text-switch{
+.ship-text-switch{
     margin-bottom: 2px;
     margin-left: 5px;
 }

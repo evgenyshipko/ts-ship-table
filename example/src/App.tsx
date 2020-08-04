@@ -103,7 +103,7 @@ class App extends Component {
                     requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}
                     columns={this.columnInfoList}
                     responseTransformer={this.transformResponseData}
-                    options={{ isPaginationNeeded: this.state.isPaginationNeeded, isSearchNeeded: true, styledTable: true }}
+                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}
                     ref={this.ref}
                 />
             </div>

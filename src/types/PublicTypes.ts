@@ -34,10 +34,10 @@ export interface RequestFuncOptions {
 
 export interface TableOptions {
     styledTable?: boolean,
-    isTestSwitchNeeded?: boolean,
-    isSearchNeeded?: boolean,
-    isPaginationNeeded?: boolean,
-    isSortingNeeded?:boolean,
+    testSwitch?: boolean,
+    search?: boolean,
+    pagination?: boolean,
+    sorting?:boolean,
 }
 
 export interface TransformedResponseData {
