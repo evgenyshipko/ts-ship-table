@@ -41,7 +41,7 @@ class ShipTable extends Component<TableProps> {
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
-        isDataLoadingSpinActive: false,
+        isDataLoadingSpinActive: true,
         paginationInfo: {
             pageNumber: 1,
             recordsPerPage: 10,
@@ -273,7 +273,7 @@ class ShipTable extends Component<TableProps> {
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (
-                <div className='ant-pagination-div'>
+                <div className='ship-ant-pagination-div'>
                     <Pagination
                         showSizeChanger
                         onChange={this.handlePaginationParameters}
@@ -303,10 +303,11 @@ class ShipTable extends Component<TableProps> {
         let spin = <></>
         if (this.state.isDataLoadingSpinActive) {
             spin = (
-                <Spin
-                    className='ship-loading-spin'
-                    size='large'
-                />
+                <div className='ship-loading-spin-div'>
+                    <Spin
+                        size='large'
+                    />
+                </div>
             )
         }
 

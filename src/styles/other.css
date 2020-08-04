@@ -3,7 +3,7 @@
     display: block;
     background-color: white;
     z-index: 1;
-    width: 750px;
+    width: 700px;
 }
 
 .ship-search-btn{
@@ -12,14 +12,14 @@
     vertical-align: middle;
 }
 
-.ship-loading-spin{
+.ship-loading-spin-div{
     display: inline-block;
     margin-left: 120px;
     vertical-align: middle;
     position: absolute;
 }
 
-.ant-pagination-div{
+.ship-ant-pagination-div{
     display: inline-block;
     margin: 3px;
     vertical-align: middle;
