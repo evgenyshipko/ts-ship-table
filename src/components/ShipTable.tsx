@@ -41,7 +41,7 @@ class ShipTable extends Component<TableProps> {
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
-        isDataLoadingSpinActive: true,
+        isDataLoadingSpinActive: false,
         paginationInfo: {
             pageNumber: 1,
             recordsPerPage: 10,
