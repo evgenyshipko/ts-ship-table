@@ -25,7 +25,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                 searchInfo = {}
             }
             if (startDate != null) {
-                searchInfo.startDate = moment(startDate.format('YYYY-MM-DD'), 'YYYY-MM-DD').utcOffset('+0100')
+                searchInfo.startDate = startDate.format('YYYY-MM-DD')
             } else {
                 delete searchInfo.startDate
             }
@@ -41,7 +41,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                 searchInfo = {}
             }
             if (endDate != null) {
-                searchInfo.endDate = moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD').utcOffset('+0100')
+                searchInfo.endDate = endDate.format('YYYY-MM-DD')
             } else {
                 delete searchInfo.endDate
             }
@@ -67,8 +67,14 @@ class RenderDateFilterCell extends Component<RendererProps> {
 
     render() {
         if (this.props.tableData.props !== undefined) {
-            const endDate = this.props.tableData.props.searchInfo[this.props.columnId]?.endDate
-            const startDate = this.props.tableData.props.searchInfo[this.props.columnId]?.startDate
+            let endDate = this.props.tableData.props.searchInfo[this.props.columnId]?.endDate
+            let startDate = this.props.tableData.props.searchInfo[this.props.columnId]?.startDate
+            if (endDate !== undefined) {
+                endDate = moment(endDate, 'YYYY-MM-DD')
+            }
+            if (startDate !== undefined) {
+                startDate = moment(startDate, 'YYYY-MM-DD')
+            }
 
             const searchButton = (
                 <Button
