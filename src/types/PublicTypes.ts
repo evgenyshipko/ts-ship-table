@@ -4,7 +4,7 @@ import {
     ColumnType as BSColumnType,
     RowType as BSRowType,
     RendererProps as BSRendererProps,
-    HeaderRendererProps as BSHeaderRendererProps
+    HeaderRendererProps as BSHeaderRendererProps, TableDataType
 } from 'react-bs-table'
 
 export interface RowType extends BSRowType{}
@@ -17,13 +17,29 @@ export interface AxiosConfigType {
   headers: {[key: string]: any}
 }
 
-export interface TableProps {
-    id: string | number,
-    columns: Array<ColumnType>,
+export interface TableProps extends BSTableProps{
     requestConfig: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: {[key: string]: any}) => void),
     responseTransformer?: (arg0: AxiosResponse) => TransformedResponseData,
     options?: TableOptions,
     ref?: RefObject<any>,
+}
+
+export interface BSTableProps {
+    columns: Array<ColumnType>,
+    defaultCellStyle?: ((tableData: TableDataType, rowData: RowType, columnId: string) => {
+        [key: string]: string;
+    }) | {
+        [key: string]: string;
+    };
+    style?: ((tableData: TableDataType) => {
+        [key: string]: string;
+    }) | {
+        [key: string]: string;
+    };
+    class?: ((tableData: TableDataType) => string) | string;
+    props?: {
+        [key: string]: any;
+    };
 }
 
 export interface RequestFuncOptions {

@@ -99,7 +99,7 @@ class App extends Component {
                 {btn}
                 {pbtn}
                 <ShipTable
-                    id={uuidv4()}
+                    class='ship-table-prototype'
                     requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}
                     columns={this.columnInfoList}
                     responseTransformer={this.transformResponseData}

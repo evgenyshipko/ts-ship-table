@@ -24,7 +24,6 @@ import {
 import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
-    prevPropsId: undefined | number | string
     transformedTableRows: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
@@ -36,7 +35,6 @@ interface State {
 
 class ShipTable extends Component<TableProps> {
     state: State = {
-        prevPropsId: undefined,
         transformedTableRows: [],
         isSearchActive: false,
         isTestModeActive: false,
@@ -256,18 +254,23 @@ class ShipTable extends Component<TableProps> {
 
         const transformedRows = this.state.transformedTableRows
         const tableDataProps = {
+            ...this.props.props,
             searchInfo: this.state.searchInfo,
             sortInfo: this.state.sortInfo,
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
-            isSortingNeeded: this.props.options?.sorting
+            isSortingNeeded: this.props.options?.sorting,
+            forceUpdate: () => { this.forceUpdate() }
         }
 
         const tableData: TableDataType = {
             columns: columnList,
             rows: transformedRows,
-            props: tableDataProps
+            props: tableDataProps,
+            defaultCellStyle: this.props.defaultCellStyle,
+            style: this.props.style,
+            class: this.props.class
         }
 
         let pagination = <></>
