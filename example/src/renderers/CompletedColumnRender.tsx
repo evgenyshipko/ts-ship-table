@@ -15,7 +15,7 @@ class CompletedColumnRender extends Component<RendererProps> {
         } else {
             return (
                 // eslint-disable-next-line react/jsx-handler-names
-                <Button onClick={this.props.tableData.props?.forceUpdate}>
+                <Button onClick={this.props.tableData.props?.render}>
                     Нет
                 </Button>
             )

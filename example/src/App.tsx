@@ -76,7 +76,7 @@ class App extends Component {
         const btn = (
             <button
                 onClick={() => {
-                    this.ref.current.updateTableData()
+                    console.log(this.ref.current.getTableData())
                 }}
             >
                 updateShipTable

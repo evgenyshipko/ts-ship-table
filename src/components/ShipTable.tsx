@@ -246,13 +246,12 @@ class ShipTable extends Component<TableProps> {
         this.updateTableData()
     }
 
-    render() {
+    getTableData = () => {
         const columnList = this.props.columns.map((columnInfo) => {
             columnInfo.renderer = RenderHeaderWarehouseTable
             return columnInfo
         })
 
-        const transformedRows = this.state.transformedTableRows
         const tableDataProps = {
             ...this.props.props,
             searchInfo: this.state.searchInfo,
@@ -261,18 +260,24 @@ class ShipTable extends Component<TableProps> {
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
             isSortingNeeded: this.props.options?.sorting,
-            forceUpdate: () => { this.forceUpdate() }
+            forceUpdate: () => { this.forceUpdate() },
+            render: () => { this.render() }
         }
 
         const tableData: TableDataType = {
             columns: columnList,
-            rows: transformedRows,
+            rows: this.state.transformedTableRows,
             props: tableDataProps,
             defaultCellStyle: this.props.defaultCellStyle,
             style: this.props.style,
             class: this.props.class
         }
+        return tableData
+    }
 
+    render() {
+        console.log('Rendered')
+        const transformedRows = this.state.transformedTableRows
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (
@@ -343,7 +348,7 @@ class ShipTable extends Component<TableProps> {
                     {pagination}
                 </div>
                 <div>
-                    <Table tableData={tableData} />
+                    <Table tableData={this.getTableData()} />
                 </div>
             </div>
         )
