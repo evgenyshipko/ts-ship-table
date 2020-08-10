@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Table, RowType, TableDataType } from 'react-bs-table'
 import { Button, Pagination, Spin } from 'antd'
-import axios, { AxiosResponse } from 'axios'
 import { SearchOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
@@ -18,14 +17,12 @@ import {
 } from '../types/PrivateTypes'
 
 import {
-    TableProps,
-    TransformedResponseData
+    TableProps
 } from '../types/PublicTypes'
 import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
     transformedTableRows: Array<RowType>,
-    transformedTableRowsToView: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
     sortInfo: SortInfoType,
@@ -37,7 +34,6 @@ interface State {
 class ShipTable extends Component<TableProps> {
     state: State = {
         transformedTableRows: [],
-        transformedTableRowsToView: [],
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
@@ -53,39 +49,31 @@ class ShipTable extends Component<TableProps> {
         }
     }
 
-    componentDidMount() {
-        this.updateTableData()
+    static getDerivedStateFromProps(props: TableProps, state: State) {
+        if (props.transformedResponseData !== undefined &&
+                state.transformedTableRows.length !== props.transformedResponseData.rows.length) {
+            return {
+                ...state,
+                transformedTableRows: props.transformedResponseData.rows,
+                paginationInfo: { ...state.paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
+            }
+        }
+        return {}
     }
-
-    // static getDerivedStateFromProps(props: TableProps, state: State) {
-    //     if (props.transformedResponseData !== undefined &&
-    //             state.transformedTableRows.length !== props.transformedResponseData.rows.length) {
-    //         console.log('getDerivedStateFromProps')
-    //         console.log(props.transformedResponseData)
-    //         return {
-    //             ...state,
-    //             transformedTableRows: props.transformedResponseData.rows,
-    //             paginationInfo: { ...state.paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
-    //         }
-    //     }
-    //     return {}
-    // }
 
     componentDidUpdate(prevProps : TableProps) {
         if (
             this.props.options?.pagination !== prevProps.options?.pagination ||
             this.props.options?.search !== prevProps.options?.search ||
-            this.props.options?.testSwitch !== prevProps.options?.testSwitch ||
-            this.props.transformedResponseData !== prevProps.transformedResponseData
+            this.props.options?.testSwitch !== prevProps.options?.testSwitch
         ) {
             this.updateTableData()
         }
     }
 
-    setResponseTableData = (responseTableData: TransformedResponseData) => {
-        const totalRecordsQuantity = responseTableData.totalRowQuantity
-        let transformedTableRowsToView: Array<RowType> = []
+    checkPaginationBorders = () => {
         if (this.props.options?.pagination) {
+            const totalRecordsQuantity = this.props.transformedResponseData.totalRowQuantity
             const recordsPerPage = this.state.paginationInfo.recordsPerPage
             const pageNumber = this.state.paginationInfo.pageNumber
 
@@ -97,76 +85,21 @@ class ShipTable extends Component<TableProps> {
                 this.setState(this.state)
                 this.updateTableData()
             }
-
-            if (this.isPaginationOnFrontEnd(responseTableData)) {
-                transformedTableRowsToView = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
-            }
         }
-
-        this.state.transformedTableRows = responseTableData.rows
-        this.state.transformedTableRowsToView = transformedTableRowsToView
-        this.state.paginationInfo = {
-            ...this.state.paginationInfo,
-            totalRecordsQuantity: responseTableData.rows.length
-        }
-        this.setState(this.state)
-        this.updateWarehouseTableDataByFilterRow()
-    }
-
-    successFunc = (response: AxiosResponse) => {
-        let responseTableData: TransformedResponseData
-        if (this.props.responseTransformer !== undefined) {
-            responseTableData = this.props.responseTransformer(response)
-        } else if (this.props.transformedResponseData !== undefined) {
-            responseTableData = this.props.transformedResponseData
-        } else {
-            responseTableData = response.data
-        }
-        this.setResponseTableData(responseTableData)
     }
 
     updateTableData = () => {
-        this.toggleDataLoadingSpin()
         console.log('updateTableData')
-
-        if (this.props.requestConfig !== undefined) {
-            if (typeof this.props.requestConfig !== 'object') {
-                this.props.requestConfig(this.successFunc, this.getRequestDataParams())
-            } else {
-                const path = this.props.requestConfig.dataUrl + this.getRequestDataParamsString()
-                let axiosConfig = this.props.requestConfig.axiosConfig
-                if (axiosConfig === undefined) {
-                    axiosConfig = {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                }
-
-                console.log(`request path: ${path}`)
-                axios.get(path, axiosConfig).then(response => {
-                    this.successFunc(response)
-                })
-            }
-        }
-        if (
-            this.props.transformedResponseData !== undefined
-        ) {
-            this.setResponseTableData(this.props.transformedResponseData)
-        }
         this.toggleDataLoadingSpin()
-    }
-
-    isPaginationOnFrontEnd = (data: TransformedResponseData) => {
-        if (data.rows.length <= this.state.paginationInfo.recordsPerPage) {
-            return false
-        } else {
-            return true
-        }
+        const requestDataParams = this.getRequestDataParams()
+        this.props.updateTableData(requestDataParams)
+        this.checkPaginationBorders()
+        this.updateWarehouseTableDataByFilterRow()
+        this.toggleDataLoadingSpin()
     }
 
     getRequestDataParams = () => {
-        let params: any = { testMode: this.state.isTestModeActive }
+        const params: any = { testMode: this.state.isTestModeActive }
         if (this.props.options?.pagination) {
             params.recordsPerPage = this.state.paginationInfo.recordsPerPage
             params.pageNumber = this.state.paginationInfo.pageNumber
@@ -177,29 +110,7 @@ class ShipTable extends Component<TableProps> {
         if (this.state.sortInfo.columnId !== undefined) {
             params.sortData = { column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc }
         }
-        if (typeof this.props.requestConfig === 'object') {
-            const urlParams = this.props.requestConfig.urlParams
-            if (urlParams !== undefined) {
-                params = { ...params, ...urlParams }
-            }
-        }
         return params
-    }
-
-    getRequestDataParamsString = () => {
-        let paramsStr: string = ''
-        const paramsObj = this.getRequestDataParams()
-        if (paramsObj !== undefined) {
-            Object.keys(paramsObj).forEach((key, index) => {
-                if (index === 0) {
-                    paramsStr += '?'
-                } else {
-                    paramsStr += '&'
-                }
-                paramsStr += `${key}=${JSON.stringify(paramsObj[key])}`
-            })
-        }
-        return paramsStr
     }
 
     handlePaginationParameters = (current: number, pageSize: number | undefined) => {
@@ -220,36 +131,40 @@ class ShipTable extends Component<TableProps> {
     }
 
     updateWarehouseTableDataByFilterRow = () => {
+        console.log('updateWarehouseTableDataByFilterRow')
+        console.log(this.state.transformedTableRows.length)
         const filterRowId: string = 'filter'
-        if (this.state.isSearchActive) {
-            const row: any = { id: filterRowId, class: 'filter-row', data: {} }
+
+        const index = this.state.transformedTableRows.findIndex((warehouseRowData) => {
+            return warehouseRowData.id === filterRowId
+        })
+
+        console.log(`index: ${index}, this.state.isSearchActive: ${this.state.isSearchActive}`)
+
+        if (this.state.isSearchActive && index === -1) {
+            const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
             this.props.columns.forEach((columnData) => {
                 const columnId = columnData.field
 
                 switch (columnData.filterType) {
                 case 'text':
-                    row.data[columnId] = { renderer: RenderTextFilterCell }
+                    filterRow.data[columnId] = { renderer: RenderTextFilterCell }
                     break
                 case 'date':
-                    row.data[columnId] = { renderer: RenderDateFilterCell }
+                    filterRow.data[columnId] = { renderer: RenderDateFilterCell }
                     break
                 case 'number':
-                    row.data[columnId] = { renderer: RenderNumberFilterCell }
+                    filterRow.data[columnId] = { renderer: RenderNumberFilterCell }
                     break
                 }
             })
 
-            this.state.transformedTableRowsToView.unshift(row)
-            this.setState(this.state)
-        } else {
-            const index = this.state.transformedTableRowsToView.findIndex((warehouseRowData) => {
-                return warehouseRowData.id === filterRowId
-            })
-            if (index >= 0) {
-                this.state.transformedTableRowsToView.splice(index, 1)
-            }
-            this.setState(this.state)
+            this.state.transformedTableRows.unshift(filterRow)
+        } else if (index >= 0) {
+            this.state.transformedTableRows.splice(index, 1)
         }
+        this.setState(this.state)
+        console.log(this.state.transformedTableRows.length)
     }
 
     toggleSortInfo = (columnId: string) => {
@@ -298,7 +213,7 @@ class ShipTable extends Component<TableProps> {
 
         const tableData: TableDataType = {
             columns: columnList,
-            rows: this.state.transformedTableRowsToView,
+            rows: this.state.transformedTableRows,
             props: tableDataProps,
             defaultCellStyle: this.props.defaultCellStyle,
             style: this.props.style,
@@ -309,11 +224,7 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         console.log('Rendered')
-
-        console.log('this.state.paginationInfo')
-        console.log(this.state.paginationInfo)
-
-        const transformedRows = this.state.transformedTableRowsToView
+        const transformedRows = this.state.transformedTableRows
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (

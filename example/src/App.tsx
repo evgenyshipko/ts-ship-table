@@ -14,7 +14,8 @@ import CompletedColumnRender from './renderers/CompletedColumnRender'
 
 interface State {
     isPaginationNeeded: boolean,
-    transformedResponseData: TransformedResponseData
+    transformedResponseData: TransformedResponseData,
+    addedRows: Array<RowType>
 }
 
 interface ResponseDataType {
@@ -26,7 +27,8 @@ interface ResponseDataType {
 class App extends Component {
   state: State = {
       isPaginationNeeded: true,
-      transformedResponseData: { totalRowQuantity: 0, rows: [] }
+      transformedResponseData: { totalRowQuantity: 0, rows: [] },
+      addedRows: []
   }
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
@@ -53,29 +55,48 @@ class App extends Component {
    ]
 
    componentDidMount() {
-       this.setTableData()
+       this.updateTableData({})
    }
 
-   addRow = () => {
-       const transformedResponseRows = this.state.transformedResponseData.rows
-       const row: RowType = {
-           id: uuidv4(),
-           data: {
-               userId: { value: 'userId' },
-               title: { value: 'hello' },
-               completed: { value: 'no', renderer: CompletedColumnRender }
-           }
-       }
-       transformedResponseRows.unshift(row)
-       this.state.transformedResponseData.rows = transformedResponseRows
-       this.setState(this.state)
-   }
+    addRow = () => {
+        const row: RowType = {
+            id: uuidv4(),
+            data: {
+                userId: { value: 'userId' },
+                title: { value: 'hello' },
+                completed: { value: 'no', renderer: CompletedColumnRender }
+            }
+        }
+        this.state.addedRows.unshift(row)
+        this.updateTableData({})
+        this.setState(this.state)
+    }
 
-    setTableData = () => {
+    updateTableData = (requestArgs: { [key: string]: any }) => {
+        console.log('path by update table data')
+        console.log(this.endPointPath + this.getRequestDataParamsString(requestArgs))
         axios.get(this.endPointPath, {}).then(response => {
             this.state.transformedResponseData = this.transformResponseData(response)
+            this.state.addedRows.forEach((addedRow) => {
+                this.state.transformedResponseData.rows.unshift(addedRow)
+            })
             this.setState(this.state)
         })
+    }
+
+    getRequestDataParamsString = (requestArgs: { [key: string]: any }) => {
+        let paramsStr: string = ''
+        if (requestArgs !== undefined) {
+            Object.keys(requestArgs).forEach((key, index) => {
+                if (index === 0) {
+                    paramsStr += '?'
+                } else {
+                    paramsStr += '&'
+                }
+                paramsStr += `${key}=${JSON.stringify(requestArgs[key])}`
+            })
+        }
+        return paramsStr
     }
 
     transformResponseData = (response: AxiosResponse) => {
@@ -100,7 +121,7 @@ class App extends Component {
     ref: RefObject<any> = React.createRef()
 
     render() {
-        console.log('this.state.transformedResponseData')
+        console.log('App tsx state')
         console.log(this.state.transformedResponseData)
 
         const addRow = (
@@ -139,6 +160,7 @@ class App extends Component {
                 <ShipTable
                     class='ship-table-prototype-1'
                     columns={this.columnInfoList}
+                    updateTableData={this.updateTableData}
                     transformedResponseData={this.state.transformedResponseData}
                     options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}
                     ref={this.ref}
