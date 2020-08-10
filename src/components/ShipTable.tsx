@@ -25,6 +25,7 @@ import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
     transformedTableRows: Array<RowType>,
+    transformedTableRowsToView: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
     sortInfo: SortInfoType,
@@ -36,6 +37,7 @@ interface State {
 class ShipTable extends Component<TableProps> {
     state: State = {
         transformedTableRows: [],
+        transformedTableRowsToView: [],
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
@@ -55,25 +57,34 @@ class ShipTable extends Component<TableProps> {
         this.updateTableData()
     }
 
+    // static getDerivedStateFromProps(props: TableProps, state: State) {
+    //     if (props.transformedResponseData !== undefined &&
+    //             state.transformedTableRows.length !== props.transformedResponseData.rows.length) {
+    //         console.log('getDerivedStateFromProps')
+    //         console.log(props.transformedResponseData)
+    //         return {
+    //             ...state,
+    //             transformedTableRows: props.transformedResponseData.rows,
+    //             paginationInfo: { ...state.paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
+    //         }
+    //     }
+    //     return {}
+    // }
+
     componentDidUpdate(prevProps : TableProps) {
         if (
             this.props.options?.pagination !== prevProps.options?.pagination ||
             this.props.options?.search !== prevProps.options?.search ||
-            this.props.options?.testSwitch !== prevProps.options?.testSwitch
+            this.props.options?.testSwitch !== prevProps.options?.testSwitch ||
+            this.props.transformedResponseData !== prevProps.transformedResponseData
         ) {
             this.updateTableData()
         }
     }
 
-    successFunc = (response: AxiosResponse) => {
-        let responseTableData: TransformedResponseData
-        if (this.props.responseTransformer !== undefined) {
-            responseTableData = this.props.responseTransformer(response)
-        } else {
-            responseTableData = response.data
-        }
-
+    setResponseTableData = (responseTableData: TransformedResponseData) => {
         const totalRecordsQuantity = responseTableData.totalRowQuantity
+        let transformedTableRowsToView: Array<RowType> = []
         if (this.props.options?.pagination) {
             const recordsPerPage = this.state.paginationInfo.recordsPerPage
             const pageNumber = this.state.paginationInfo.pageNumber
@@ -88,41 +99,62 @@ class ShipTable extends Component<TableProps> {
             }
 
             if (this.isPaginationOnFrontEnd(responseTableData)) {
-                responseTableData.rows = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
+                transformedTableRowsToView = responseTableData.rows.slice((pageNumber - 1) * recordsPerPage, pageNumber * recordsPerPage)
             }
         }
 
-        this.setState({
-            transformedTableRows: responseTableData.rows,
-            paginationInfo: { ...this.state.paginationInfo, totalRecordsQuantity: totalRecordsQuantity }
-        })
-
+        this.state.transformedTableRows = responseTableData.rows
+        this.state.transformedTableRowsToView = transformedTableRowsToView
+        this.state.paginationInfo = {
+            ...this.state.paginationInfo,
+            totalRecordsQuantity: responseTableData.rows.length
+        }
+        this.setState(this.state)
         this.updateWarehouseTableDataByFilterRow()
-        this.toggleDataLoadingSpin()
+    }
+
+    successFunc = (response: AxiosResponse) => {
+        let responseTableData: TransformedResponseData
+        if (this.props.responseTransformer !== undefined) {
+            responseTableData = this.props.responseTransformer(response)
+        } else if (this.props.transformedResponseData !== undefined) {
+            responseTableData = this.props.transformedResponseData
+        } else {
+            responseTableData = response.data
+        }
+        this.setResponseTableData(responseTableData)
     }
 
     updateTableData = () => {
         this.toggleDataLoadingSpin()
         console.log('updateTableData')
 
-        if (typeof this.props.requestConfig !== 'object') {
-            this.props.requestConfig(this.successFunc, this.getRequestDataParams())
-        } else {
-            const path = this.props.requestConfig.dataUrl + this.getRequestDataParamsString()
-            let axiosConfig = this.props.requestConfig.axiosConfig
-            if (axiosConfig === undefined) {
-                axiosConfig = {
-                    headers: {
-                        'Content-Type': 'application/json'
+        if (this.props.requestConfig !== undefined) {
+            if (typeof this.props.requestConfig !== 'object') {
+                this.props.requestConfig(this.successFunc, this.getRequestDataParams())
+            } else {
+                const path = this.props.requestConfig.dataUrl + this.getRequestDataParamsString()
+                let axiosConfig = this.props.requestConfig.axiosConfig
+                if (axiosConfig === undefined) {
+                    axiosConfig = {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     }
                 }
-            }
 
-            console.log(`request path: ${path}`)
-            axios.get(path, axiosConfig).then(response => {
-                this.successFunc(response)
-            })
+                console.log(`request path: ${path}`)
+                axios.get(path, axiosConfig).then(response => {
+                    this.successFunc(response)
+                })
+            }
         }
+        if (
+            this.props.transformedResponseData !== undefined
+        ) {
+            this.setResponseTableData(this.props.transformedResponseData)
+        }
+        this.toggleDataLoadingSpin()
     }
 
     isPaginationOnFrontEnd = (data: TransformedResponseData) => {
@@ -207,14 +239,14 @@ class ShipTable extends Component<TableProps> {
                 }
             })
 
-            this.state.transformedTableRows.unshift(row)
+            this.state.transformedTableRowsToView.unshift(row)
             this.setState(this.state)
         } else {
-            const index = this.state.transformedTableRows.findIndex((warehouseRowData) => {
+            const index = this.state.transformedTableRowsToView.findIndex((warehouseRowData) => {
                 return warehouseRowData.id === filterRowId
             })
             if (index >= 0) {
-                this.state.transformedTableRows.splice(index, 1)
+                this.state.transformedTableRowsToView.splice(index, 1)
             }
             this.setState(this.state)
         }
@@ -266,7 +298,7 @@ class ShipTable extends Component<TableProps> {
 
         const tableData: TableDataType = {
             columns: columnList,
-            rows: this.state.transformedTableRows,
+            rows: this.state.transformedTableRowsToView,
             props: tableDataProps,
             defaultCellStyle: this.props.defaultCellStyle,
             style: this.props.style,
@@ -277,7 +309,11 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         console.log('Rendered')
-        const transformedRows = this.state.transformedTableRows
+
+        console.log('this.state.paginationInfo')
+        console.log(this.state.paginationInfo)
+
+        const transformedRows = this.state.transformedTableRowsToView
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (

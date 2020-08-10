@@ -18,8 +18,9 @@ export interface AxiosConfigType {
 }
 
 export interface TableProps extends BSTableProps{
-    requestConfig: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: {[key: string]: any}) => void),
+    requestConfig?: RequestFuncOptions | ((success: (response: AxiosResponse) => void, requestParams: {[key: string]: any}) => void),
     responseTransformer?: (arg0: AxiosResponse) => TransformedResponseData,
+    transformedResponseData?: TransformedResponseData,
     options?: TableOptions,
     ref?: RefObject<any>,
 }
