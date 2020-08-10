@@ -23,7 +23,7 @@ import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
     prevPropsId: string,
-    transformedTableRows: Array<RowType>,
+    tableDataRows: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
     sortInfo: SortInfoType,
@@ -35,7 +35,7 @@ interface State {
 class ShipTable extends Component<TableProps> {
     state: State = {
         prevPropsId: '',
-        transformedTableRows: [],
+        tableDataRows: [],
         isSearchActive: false,
         isTestModeActive: false,
         searchInfo: {},
@@ -54,12 +54,12 @@ class ShipTable extends Component<TableProps> {
     static getDerivedStateFromProps(props: TableProps, state: State) {
         if (props.id !== state.prevPropsId) {
             const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
-            const transformedTableRows = ShipTable.updateWarehouseTableDataByFilterRow(props, state, props.transformedResponseData.rows)
+            const tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
             return {
                 ...state,
                 prevPropsId: props.id,
-                transformedTableRows: transformedTableRows,
-                paginationInfo: { ...paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
+                tableDataRows: tableDataRows,
+                paginationInfo: { ...paginationInfo, totalRecordsQuantity: props.tableData.totalRowQuantity }
             }
         }
         return {}
@@ -67,7 +67,7 @@ class ShipTable extends Component<TableProps> {
 
     static getValidPaginationInfo = (props: TableProps, paginationInfo: PaginationInfoType) => {
         if (props.options?.pagination) {
-            const totalRecordsQuantity = props.transformedResponseData.totalRowQuantity
+            const totalRecordsQuantity = props.tableData.totalRowQuantity
             const recordsPerPage = paginationInfo.recordsPerPage
             const pageNumber = paginationInfo.pageNumber
 
@@ -112,7 +112,7 @@ class ShipTable extends Component<TableProps> {
 
     toggleSearchActive = () => {
         this.state.isSearchActive = !this.state.isSearchActive
-        this.state.transformedTableRows = ShipTable.updateWarehouseTableDataByFilterRow(this.props, this.state, this.state.transformedTableRows)
+        this.state.tableDataRows = ShipTable.updateTableDataByFilterRow(this.props, this.state, this.state.tableDataRows)
         this.setState(this.state)
     }
 
@@ -121,8 +121,8 @@ class ShipTable extends Component<TableProps> {
         this.setState(this.state)
     }
 
-    static updateWarehouseTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
-        console.log('updateWarehouseTableDataByFilterRow')
+    static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
+        console.log('updateTableDataByFilterRow')
         const filterRowId: string = 'filter'
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
@@ -132,8 +132,7 @@ class ShipTable extends Component<TableProps> {
             const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
             props.columns.forEach((columnData) => {
                 const columnId = columnData.field
-
-                switch (columnData.filterType) {
+                switch (columnData.filterRendererType) {
                 case 'text':
                     filterRow.data[columnId] = { renderer: RenderTextFilterCell }
                     break
@@ -143,6 +142,10 @@ class ShipTable extends Component<TableProps> {
                 case 'number':
                     filterRow.data[columnId] = { renderer: RenderNumberFilterCell }
                     break
+                }
+
+                if (columnData.customFilterRenderer !== undefined) {
+                    filterRow.data[columnId] = { renderer: columnData.customFilterRenderer }
                 }
             })
 
@@ -181,7 +184,12 @@ class ShipTable extends Component<TableProps> {
 
     getTableData = () => {
         const columnList = this.props.columns.map((columnInfo) => {
-            columnInfo.renderer = RenderHeaderWarehouseTable
+            if (
+                columnInfo.sortEnable === undefined ||
+                columnInfo.sortEnable === true
+            ) {
+                columnInfo.renderer = RenderHeaderWarehouseTable
+            }
             return columnInfo
         })
 
@@ -192,14 +200,14 @@ class ShipTable extends Component<TableProps> {
             setSearchInfo: this.setSearchInfo,
             updateTableData: this.updateTableData,
             toggleSortInfo: this.toggleSortInfo,
-            isSortingNeeded: this.props.options?.sorting,
+            sorting: this.props.options?.sorting,
             forceUpdate: () => { this.forceUpdate() },
             render: () => { this.render() }
         }
 
         const tableData: TableDataType = {
             columns: columnList,
-            rows: this.state.transformedTableRows,
+            rows: this.state.tableDataRows,
             props: tableDataProps,
             defaultCellStyle: this.props.defaultCellStyle,
             style: this.props.style,
@@ -210,9 +218,9 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         console.log('Rendered')
-        const transformedRows = this.state.transformedTableRows
-        // console.log('this.state.transformedTableRows')
-        // console.log(this.state.transformedTableRows)
+        const transformedRows = this.state.tableDataRows
+        // console.log('this.state.tableDataRows')
+        // console.log(this.state.tableDataRows)
 
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {

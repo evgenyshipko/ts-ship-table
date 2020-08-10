@@ -6,7 +6,7 @@ class RenderHeaderWarehouseTable extends Component<HeaderRendererProps> {
     render() {
         if (
             this.props.tableData.props !== undefined &&
-            this.props.tableData.props.isSortingNeeded
+            this.props.tableData.props.sorting
         ) {
             let sortIcon = <></>
 

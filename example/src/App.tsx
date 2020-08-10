@@ -1,9 +1,8 @@
-import React, { Component, RefObject } from 'react'
+import React, { Component, ComponentType, RefObject } from 'react'
 
 import {
     ShipTable,
     ColumnType,
-    TransformedResponseData,
     RowType
 } from 'ts-ship-table'
 
@@ -11,10 +10,11 @@ import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
 import axios, { AxiosResponse } from 'axios'
 import CompletedColumnRender from './renderers/CompletedColumnRender'
+import { RendererProps, ResponseTableData } from '../../src'
 
 interface State {
     isPaginationNeeded: boolean,
-    transformedResponseData: TransformedResponseData,
+    tableData: ResponseTableData,
     addedRows: Array<RowType>
 }
 
@@ -27,36 +27,41 @@ interface ResponseDataType {
 class App extends Component {
   state: State = {
       isPaginationNeeded: true,
-      transformedResponseData: { totalRowQuantity: 0, rows: [] },
+      tableData: { totalRowQuantity: 0, rows: [] },
       addedRows: []
   }
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
 
-   columnInfoList: Array<ColumnType> = [
-       {
-           field: 'userId',
-           title: 'id юзера',
-           filterType: 'number',
-           class: 'userid-column-class'
-       },
-       {
-           field: 'title',
-           title: 'Название',
-           filterType: 'text',
-           class: 'summary-column-class'
-       },
-       {
-           field: 'completed',
-           title: 'Выполнено?',
-           filterType: 'date',
-           class: 'reporter-column-class'
-       }
-   ]
+    myRender: ComponentType<RendererProps> = (props: RendererProps) => {
+        return <div>privet {props.rowData.class}</div>
+    }
 
-   componentDidMount() {
-       this.updateTableData({})
-   }
+    columnInfoList: Array<ColumnType> = [
+        {
+            field: 'userId',
+            title: 'id юзера',
+            filterRendererType: 'number',
+            class: 'userid-column-class'
+        },
+        {
+            field: 'title',
+            title: 'Название',
+            customFilterRenderer: this.myRender,
+            class: 'summary-column-class'
+        },
+        {
+            field: 'completed',
+            title: 'Выполнено?',
+            filterRendererType: 'date',
+            class: 'reporter-column-class',
+            sortEnable: false
+        }
+    ]
+
+    componentDidMount() {
+        this.updateTableData({})
+    }
 
     addRow = () => {
         const row: RowType = {
@@ -76,9 +81,9 @@ class App extends Component {
         console.log('path by update table data')
         console.log(this.endPointPath + this.getRequestDataParamsString(requestArgs))
         axios.get(this.endPointPath, {}).then(response => {
-            this.state.transformedResponseData = this.transformResponseData(response)
+            this.state.tableData = this.transformResponseData(response)
             this.state.addedRows.forEach((addedRow) => {
-                this.state.transformedResponseData.rows.unshift(addedRow)
+                this.state.tableData.rows.unshift(addedRow)
             })
             this.setState(this.state)
         })
@@ -114,7 +119,7 @@ class App extends Component {
             return result
         })
 
-        const result: TransformedResponseData = { rows: rows, totalRowQuantity: rows.length }
+        const result: ResponseTableData = { rows: rows, totalRowQuantity: rows.length }
         return result
     }
 
@@ -122,7 +127,7 @@ class App extends Component {
 
     render() {
         // console.log('App tsx state')
-        // console.log(this.state.transformedResponseData)
+        // console.log(this.state.tableData)
 
         const addRow = (
             <button
@@ -162,8 +167,8 @@ class App extends Component {
                     class='ship-table-prototype-1'
                     columns={this.columnInfoList}
                     updateTableData={this.updateTableData}
-                    transformedResponseData={this.state.transformedResponseData}
-                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}
+                    tableData={this.state.tableData}
+                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true, sorting: true }}
                     ref={this.ref}
                 />
             </div>

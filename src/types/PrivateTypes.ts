@@ -1,5 +1,3 @@
-import { TableDataType } from 'react-bs-table'
-import { RendererProps, HeaderRendererProps } from './PublicTypes'
 
 export interface PaginationInfoType {
     pageNumber: number,
