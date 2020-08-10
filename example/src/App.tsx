@@ -9,23 +9,26 @@ import {
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
-import { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import CompletedColumnRender from './renderers/CompletedColumnRender'
 
 interface State {
-  isPaginationNeeded: boolean
+    isPaginationNeeded: boolean,
+    transformedResponseData: TransformedResponseData,
+    addedRows: Array<RowType>
 }
 
 interface ResponseDataType {
     userId: number,
-    id: number,
     title: string,
     completed: boolean
 }
 
 class App extends Component {
   state: State = {
-      isPaginationNeeded: false
+      isPaginationNeeded: true,
+      transformedResponseData: { totalRowQuantity: 0, rows: [] },
+      addedRows: []
   }
 
    endPointPath = 'https://jsonplaceholder.typicode.com/todos'
@@ -51,6 +54,51 @@ class App extends Component {
        }
    ]
 
+   componentDidMount() {
+       this.updateTableData({})
+   }
+
+    addRow = () => {
+        const row: RowType = {
+            id: uuidv4(),
+            data: {
+                userId: { value: 'userId' },
+                title: { value: 'hello' },
+                completed: { value: 'no', renderer: CompletedColumnRender }
+            }
+        }
+        this.state.addedRows.unshift(row)
+        this.updateTableData({})
+        this.setState(this.state)
+    }
+
+    updateTableData = (requestArgs: { [key: string]: any }) => {
+        console.log('path by update table data')
+        console.log(this.endPointPath + this.getRequestDataParamsString(requestArgs))
+        axios.get(this.endPointPath, {}).then(response => {
+            this.state.transformedResponseData = this.transformResponseData(response)
+            this.state.addedRows.forEach((addedRow) => {
+                this.state.transformedResponseData.rows.unshift(addedRow)
+            })
+            this.setState(this.state)
+        })
+    }
+
+    getRequestDataParamsString = (requestArgs: { [key: string]: any }) => {
+        let paramsStr: string = ''
+        if (requestArgs !== undefined) {
+            Object.keys(requestArgs).forEach((key, index) => {
+                if (index === 0) {
+                    paramsStr += '?'
+                } else {
+                    paramsStr += '&'
+                }
+                paramsStr += `${key}=${JSON.stringify(requestArgs[key])}`
+            })
+        }
+        return paramsStr
+    }
+
     transformResponseData = (response: AxiosResponse) => {
         const responseData: Array<ResponseDataType> = response.data
         const rows: Array<RowType> = responseData.map((row) => {
@@ -73,13 +121,16 @@ class App extends Component {
     ref: RefObject<any> = React.createRef()
 
     render() {
-        const btn = (
+        // console.log('App tsx state')
+        // console.log(this.state.transformedResponseData)
+
+        const addRow = (
             <button
                 onClick={() => {
-                    console.log(this.ref.current.getTableData())
+                    this.addRow()
                 }}
             >
-                updateShipTable
+                addRow
             </button>
         )
 
@@ -96,13 +147,22 @@ class App extends Component {
 
         return (
             <div>
-                {btn}
                 {pbtn}
+                {/* <ShipTable*/}
+                {/*    class='ship-table-prototype'*/}
+                {/*    requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}*/}
+                {/*    columns={this.columnInfoList}*/}
+                {/*    responseTransformer={this.transformResponseData}*/}
+                {/*    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}*/}
+                {/*    ref={this.ref}*/}
+                {/* />*/}
+                {addRow}
                 <ShipTable
-                    class='ship-table-prototype'
-                    requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}
+                    id={uuidv4()}
+                    class='ship-table-prototype-1'
                     columns={this.columnInfoList}
-                    responseTransformer={this.transformResponseData}
+                    updateTableData={this.updateTableData}
+                    transformedResponseData={this.state.transformedResponseData}
                     options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}
                     ref={this.ref}
                 />
