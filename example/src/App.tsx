@@ -121,8 +121,8 @@ class App extends Component {
     ref: RefObject<any> = React.createRef()
 
     render() {
-        console.log('App tsx state')
-        console.log(this.state.transformedResponseData)
+        // console.log('App tsx state')
+        // console.log(this.state.transformedResponseData)
 
         const addRow = (
             <button
@@ -158,6 +158,7 @@ class App extends Component {
                 {/* />*/}
                 {addRow}
                 <ShipTable
+                    id={uuidv4()}
                     class='ship-table-prototype-1'
                     columns={this.columnInfoList}
                     updateTableData={this.updateTableData}

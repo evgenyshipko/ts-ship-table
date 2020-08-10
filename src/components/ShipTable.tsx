@@ -22,6 +22,7 @@ import {
 import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
 
 interface State {
+    prevPropsId: string,
     transformedTableRows: Array<RowType>,
     paginationInfo: PaginationInfoType,
     searchInfo: SearchInfoType,
@@ -33,6 +34,7 @@ interface State {
 
 class ShipTable extends Component<TableProps> {
     state: State = {
+        prevPropsId: '',
         transformedTableRows: [],
         isSearchActive: false,
         isTestModeActive: false,
@@ -50,42 +52,33 @@ class ShipTable extends Component<TableProps> {
     }
 
     static getDerivedStateFromProps(props: TableProps, state: State) {
-        if (props.transformedResponseData !== undefined &&
-                state.transformedTableRows.length !== props.transformedResponseData.rows.length) {
+        if (props.id !== state.prevPropsId) {
+            const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
+            const transformedTableRows = ShipTable.updateWarehouseTableDataByFilterRow(props, state, props.transformedResponseData.rows)
             return {
                 ...state,
-                transformedTableRows: props.transformedResponseData.rows,
-                paginationInfo: { ...state.paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
+                prevPropsId: props.id,
+                transformedTableRows: transformedTableRows,
+                paginationInfo: { ...paginationInfo, totalRecordsQuantity: props.transformedResponseData.totalRowQuantity }
             }
         }
         return {}
     }
 
-    componentDidUpdate(prevProps : TableProps) {
-        if (
-            this.props.options?.pagination !== prevProps.options?.pagination ||
-            this.props.options?.search !== prevProps.options?.search ||
-            this.props.options?.testSwitch !== prevProps.options?.testSwitch
-        ) {
-            this.updateTableData()
-        }
-    }
-
-    checkPaginationBorders = () => {
-        if (this.props.options?.pagination) {
-            const totalRecordsQuantity = this.props.transformedResponseData.totalRowQuantity
-            const recordsPerPage = this.state.paginationInfo.recordsPerPage
-            const pageNumber = this.state.paginationInfo.pageNumber
+    static getValidPaginationInfo = (props: TableProps, paginationInfo: PaginationInfoType) => {
+        if (props.options?.pagination) {
+            const totalRecordsQuantity = props.transformedResponseData.totalRowQuantity
+            const recordsPerPage = paginationInfo.recordsPerPage
+            const pageNumber = paginationInfo.pageNumber
 
             if (
                 Math.ceil(totalRecordsQuantity / recordsPerPage) < pageNumber &&
                 totalRecordsQuantity !== 0
             ) {
-                this.state.paginationInfo.pageNumber = 1
-                this.setState(this.state)
-                this.updateTableData()
+                paginationInfo.pageNumber = 1
             }
         }
+        return paginationInfo
     }
 
     updateTableData = () => {
@@ -93,8 +86,6 @@ class ShipTable extends Component<TableProps> {
         this.toggleDataLoadingSpin()
         const requestDataParams = this.getRequestDataParams()
         this.props.updateTableData(requestDataParams)
-        this.checkPaginationBorders()
-        this.updateWarehouseTableDataByFilterRow()
         this.toggleDataLoadingSpin()
     }
 
@@ -121,8 +112,8 @@ class ShipTable extends Component<TableProps> {
 
     toggleSearchActive = () => {
         this.state.isSearchActive = !this.state.isSearchActive
+        this.state.transformedTableRows = ShipTable.updateWarehouseTableDataByFilterRow(this.props, this.state, this.state.transformedTableRows)
         this.setState(this.state)
-        this.updateWarehouseTableDataByFilterRow()
     }
 
     toggleDataLoadingSpin = () => {
@@ -130,20 +121,16 @@ class ShipTable extends Component<TableProps> {
         this.setState(this.state)
     }
 
-    updateWarehouseTableDataByFilterRow = () => {
+    static updateWarehouseTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
         console.log('updateWarehouseTableDataByFilterRow')
-        console.log(this.state.transformedTableRows.length)
         const filterRowId: string = 'filter'
-
-        const index = this.state.transformedTableRows.findIndex((warehouseRowData) => {
+        const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
         })
-
-        console.log(`index: ${index}, this.state.isSearchActive: ${this.state.isSearchActive}`)
-
-        if (this.state.isSearchActive && index === -1) {
+        // console.log(`index: ${index}, this.state.isSearchActive: ${state.isSearchActive}`)
+        if (state.isSearchActive && index === -1) {
             const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
-            this.props.columns.forEach((columnData) => {
+            props.columns.forEach((columnData) => {
                 const columnId = columnData.field
 
                 switch (columnData.filterType) {
@@ -159,12 +146,11 @@ class ShipTable extends Component<TableProps> {
                 }
             })
 
-            this.state.transformedTableRows.unshift(filterRow)
+            dataToTransform.unshift(filterRow)
         } else if (index >= 0) {
-            this.state.transformedTableRows.splice(index, 1)
+            dataToTransform.splice(index, 1)
         }
-        this.setState(this.state)
-        console.log(this.state.transformedTableRows.length)
+        return dataToTransform
     }
 
     toggleSortInfo = (columnId: string) => {
@@ -225,6 +211,9 @@ class ShipTable extends Component<TableProps> {
     render() {
         console.log('Rendered')
         const transformedRows = this.state.transformedTableRows
+        // console.log('this.state.transformedTableRows')
+        // console.log(this.state.transformedTableRows)
+
         let pagination = <></>
         if (transformedRows.length > 0 && this.props.options?.pagination) {
             pagination = (
