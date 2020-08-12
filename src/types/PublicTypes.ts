@@ -17,7 +17,8 @@ export interface TableProps extends BSTableProps{
     updateTableData: (requestArgs: { [key: string]: any }) => void,
     tableData: ResponseTableData,
     options?: TableOptions,
-    ref?: RefObject<any>
+    ref?: RefObject<any>,
+    buttons?: Array<JSX.Element>
 }
 
 export interface BSTableProps {

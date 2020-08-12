@@ -286,6 +286,7 @@ class ShipTable extends Component<TableProps> {
         return (
             <div className={mainDivClassName}>
                 <div className='ship-first-line'>
+                    {this.props.buttons}
                     {testModeToggleDiv}
                     {spin}
                     {searchButton}

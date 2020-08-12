@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 import axios, { AxiosResponse } from 'axios'
 import CompletedColumnRender from './renderers/CompletedColumnRender'
 import { RendererProps, ResponseTableData } from '../../src'
+import { Button } from 'antd'
 
 interface State {
     isPaginationNeeded: boolean,
@@ -75,6 +76,22 @@ class App extends Component {
         this.state.addedRows.unshift(row)
         this.updateTableData({})
         this.setState(this.state)
+    }
+
+    getButton1 = () => {
+        return (
+            <Button>
+                privet
+            </Button>
+        )
+    }
+
+    getButton2 = () => {
+        return (
+            <Button>
+                poka
+            </Button>
+        )
     }
 
     updateTableData = (requestArgs: { [key: string]: any }) => {
@@ -170,6 +187,7 @@ class App extends Component {
                     tableData={this.state.tableData}
                     options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true, sorting: true }}
                     ref={this.ref}
+                    buttons={[this.getButton1(), this.getButton2()]}
                 />
             </div>
         )
