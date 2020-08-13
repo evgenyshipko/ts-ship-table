@@ -29,11 +29,6 @@ class RenderNumberFilterCell extends Component<RendererProps> {
                 minValue == null && maxValue == null ? undefined : { ...searchInfo, ...numberInfo }
             )
         }
-
-        if (this.props.tableData.props !== undefined) {
-            console.log('this.props.tableData.props.searchInfo')
-            console.log(this.props.tableData.props.searchInfo)
-        }
     }
 
     updateTableDataBySearch = () => {

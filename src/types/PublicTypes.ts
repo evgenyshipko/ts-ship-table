@@ -18,7 +18,7 @@ export interface TableProps extends BSTableProps{
     tableData: ResponseTableData,
     options?: TableOptions,
     ref?: RefObject<any>,
-    buttons?: Array<JSX.Element>
+    jsxElementsToHeader?: Array<JSX.Element>
 }
 
 export interface BSTableProps {
@@ -45,6 +45,7 @@ export interface TableOptions {
     search?: boolean,
     pagination?: boolean,
     sorting?:boolean,
+    showLogs?:boolean
 }
 
 export interface ResponseTableData {

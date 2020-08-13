@@ -78,22 +78,6 @@ class App extends Component {
         this.setState(this.state)
     }
 
-    getButton1 = () => {
-        return (
-            <Button>
-                privet
-            </Button>
-        )
-    }
-
-    getButton2 = () => {
-        return (
-            <Button>
-                poka
-            </Button>
-        )
-    }
-
     updateTableData = (requestArgs: { [key: string]: any }) => {
         console.log('path by update table data')
         console.log(this.endPointPath + this.getRequestDataParamsString(requestArgs))
@@ -143,51 +127,38 @@ class App extends Component {
     ref: RefObject<any> = React.createRef()
 
     render() {
-        // console.log('App tsx state')
-        // console.log(this.state.tableData)
-
         const addRow = (
-            <button
+            <Button
                 onClick={() => {
                     this.addRow()
                 }}
             >
                 addRow
-            </button>
+            </Button>
         )
 
         const pbtn = (
-            <button
+            <Button
                 onClick={() => {
                     this.state.isPaginationNeeded = !this.state.isPaginationNeeded
                     this.setState(this.state)
                 }}
             >
                 changePagination
-            </button>
+            </Button>
         )
 
         return (
             <div>
-                {pbtn}
-                {/* <ShipTable*/}
-                {/*    class='ship-table-prototype'*/}
-                {/*    requestConfig={{ dataUrl: this.endPointPath, urlParams: { hi: 1, hello: 10 } }}*/}
-                {/*    columns={this.columnInfoList}*/}
-                {/*    responseTransformer={this.transformResponseData}*/}
-                {/*    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true }}*/}
-                {/*    ref={this.ref}*/}
-                {/* />*/}
-                {addRow}
                 <ShipTable
                     id={uuidv4()}
                     class='ship-table-prototype-1'
                     columns={this.columnInfoList}
                     updateTableData={this.updateTableData}
                     tableData={this.state.tableData}
-                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true, sorting: true }}
+                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true, sorting: true, showLogs: true }}
                     ref={this.ref}
-                    buttons={[this.getButton1(), this.getButton2()]}
+                    jsxElementsToHeader={[pbtn, addRow]}
                 />
             </div>
         )

@@ -82,7 +82,9 @@ class ShipTable extends Component<TableProps> {
     }
 
     updateTableData = () => {
-        console.log('updateTableData')
+        if (this.props.options?.showLogs) {
+            console.log('updateTableData')
+        }
         this.toggleDataLoadingSpin()
         const requestDataParams = this.getRequestDataParams()
         this.props.updateTableData(requestDataParams)
@@ -122,12 +124,13 @@ class ShipTable extends Component<TableProps> {
     }
 
     static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
-        console.log('updateTableDataByFilterRow')
+        if (props.options?.showLogs) {
+            console.log('updateTableDataByFilterRow')
+        }
         const filterRowId: string = 'filter'
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
         })
-        // console.log(`index: ${index}, this.state.isSearchActive: ${state.isSearchActive}`)
         if (state.isSearchActive && index === -1) {
             const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
             props.columns.forEach((columnData) => {
@@ -217,13 +220,14 @@ class ShipTable extends Component<TableProps> {
     }
 
     render() {
-        console.log('Rendered')
-        const transformedRows = this.state.tableDataRows
-        // console.log('this.state.tableDataRows')
-        // console.log(this.state.tableDataRows)
+        if (this.props.options?.showLogs) {
+            console.log('Rendered')
+            console.log('this.state.tableDataRows')
+            console.log(this.state.tableDataRows)
+        }
 
         let pagination = <></>
-        if (transformedRows.length > 0 && this.props.options?.pagination) {
+        if (this.state.tableDataRows.length > 0 && this.props.options?.pagination) {
             pagination = (
                 <div className='ship-ant-pagination-div'>
                     <Pagination
@@ -286,7 +290,7 @@ class ShipTable extends Component<TableProps> {
         return (
             <div className={mainDivClassName}>
                 <div className='ship-first-line'>
-                    {this.props.buttons}
+                    {this.props.jsxElementsToHeader}
                     {testModeToggleDiv}
                     {spin}
                     {searchButton}
