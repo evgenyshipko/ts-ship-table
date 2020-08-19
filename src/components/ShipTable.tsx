@@ -65,6 +65,16 @@ class ShipTable extends Component<TableProps> {
         return {}
     }
 
+    componentDidUpdate() {
+        if (this.props.tableData.rows.length === 0 &&
+            this.props.tableData.totalRowQuantity > 0) {
+            if (this.props.options?.showLogs) {
+                console.log('ShipTable componentDidUpdate')
+            }
+            this.updateTableData()
+        }
+    }
+
     static getValidPaginationInfo = (props: TableProps, paginationInfo: PaginationInfoType) => {
         if (props.options?.pagination) {
             const totalRecordsQuantity = props.tableData.totalRowQuantity
@@ -124,10 +134,6 @@ class ShipTable extends Component<TableProps> {
     }
 
     static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
-        if (props.options?.showLogs) {
-            console.log('updateTableDataByFilterRow START')
-            console.log(dataToTransform)
-        }
         const filterRowId: string = 'filter'
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
@@ -156,11 +162,6 @@ class ShipTable extends Component<TableProps> {
             dataToTransform.unshift(filterRow)
         } else if (index >= 0) {
             dataToTransform.splice(index, 1)
-        }
-
-        if (props.options?.showLogs) {
-            console.log('updateTableDataByFilterRow END')
-            console.log(dataToTransform)
         }
 
         return dataToTransform
@@ -226,23 +227,11 @@ class ShipTable extends Component<TableProps> {
         return tableData
     }
 
-    updateTableDataWithValidPaginationInfo = () => {
-        if (this.props.tableData.rows.length === 0 &&
-        this.props.tableData.totalRowQuantity > 0) {
-            if (this.props.options?.showLogs) {
-                console.log('updateTableDataWithValidPaginationInfo')
-            }
-            this.updateTableData()
-        }
-    }
-
     render() {
         if (this.props.options?.showLogs) {
             console.log('Rendered! this.state:')
             console.log(this.state)
         }
-
-        this.updateTableDataWithValidPaginationInfo()
 
         let pagination = <></>
         if (this.state.tableDataRows.length > 0 && this.props.options?.pagination) {
