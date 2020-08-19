@@ -221,9 +221,8 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         if (this.props.options?.showLogs) {
-            console.log('Rendered')
-            console.log('this.state.tableDataRows')
-            console.log(this.state.tableDataRows)
+            console.log('Rendered! this.state:')
+            console.log(this.state)
         }
 
         let pagination = <></>
