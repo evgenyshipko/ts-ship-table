@@ -125,7 +125,8 @@ class ShipTable extends Component<TableProps> {
 
     static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
         if (props.options?.showLogs) {
-            console.log('updateTableDataByFilterRow')
+            console.log('updateTableDataByFilterRow START')
+            console.log(dataToTransform)
         }
         const filterRowId: string = 'filter'
         const index = dataToTransform.findIndex((warehouseRowData) => {
@@ -156,6 +157,12 @@ class ShipTable extends Component<TableProps> {
         } else if (index >= 0) {
             dataToTransform.splice(index, 1)
         }
+
+        if (props.options?.showLogs) {
+            console.log('updateTableDataByFilterRow END')
+            console.log(dataToTransform)
+        }
+
         return dataToTransform
     }
 
