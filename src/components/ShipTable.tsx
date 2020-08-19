@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Table, RowType, TableDataType } from 'react-bs-table'
 import { Button, Pagination, Spin } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
 import '../styles/table.css'
@@ -229,6 +229,13 @@ class ShipTable extends Component<TableProps> {
         return tableData
     }
 
+    handleUndoSearch = () => {
+        this.toggleSearchActive()
+        this.state.searchInfo = {}
+        this.setState(this.state)
+        this.updateTableData()
+    }
+
     render() {
         if (this.props.options?.showLogs) {
             console.log('Rendered! this.state:')
@@ -291,6 +298,19 @@ class ShipTable extends Component<TableProps> {
             )
         }
 
+        let undoSearch = <></>
+        if (this.state.isSearchActive && Object.keys(this.state.searchInfo).length > 0){
+            undoSearch = (
+                <Button
+                    icon={<CloseOutlined />}
+                    className='ship-deny-search'
+                    onClick={this.handleUndoSearch}
+                >
+                    Сбросить поиск
+                </Button>
+            )
+        }
+
         let mainDivClassName = 'ship-table-div'
         if (this.props.options?.styledTable) {
             mainDivClassName = 'ship-table-div-styled'
@@ -303,6 +323,7 @@ class ShipTable extends Component<TableProps> {
                     {testModeToggleDiv}
                     {spin}
                     {searchButton}
+                    {undoSearch}
                     {pagination}
                 </div>
                 <div>

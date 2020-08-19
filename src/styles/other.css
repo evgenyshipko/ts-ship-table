@@ -3,10 +3,16 @@
     display: block;
     background-color: white;
     z-index: 1;
-    width: 900px;
+    width: 1300px;
 }
 
 .ship-search-btn{
+    display: inline-block;
+    margin: 3px;
+    vertical-align: middle;
+}
+
+.ship-deny-search{
     display: inline-block;
     margin: 3px;
     vertical-align: middle;
