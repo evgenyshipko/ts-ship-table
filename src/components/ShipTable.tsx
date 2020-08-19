@@ -54,7 +54,7 @@ class ShipTable extends Component<TableProps> {
     static getDerivedStateFromProps(props: TableProps, state: State) {
         if (props.id !== state.prevPropsId) {
             if (props.options?.showLogs) {
-                console.log('getDerivedStateFromProps')
+                console.log('=== getDerivedStateFromProps ===')
             }
             const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
             const tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
@@ -69,12 +69,14 @@ class ShipTable extends Component<TableProps> {
     }
 
     componentDidUpdate(prevProps: TableProps) {
-        if (prevProps.tableData.rows.length > 0 &&
+        if (
+            prevProps.tableData.rows.length > 0 &&
             prevProps.tableData.totalRowQuantity > 0 &&
             this.props.tableData.rows.length === 0 &&
-            this.props.tableData.totalRowQuantity > 0) {
+            this.props.tableData.totalRowQuantity > 0
+        ) {
             if (this.props.options?.showLogs) {
-                console.log('ShipTable componentDidUpdate')
+                console.log('=== componentDidUpdate ===')
             }
             this.updateTableData()
         }
@@ -98,12 +100,10 @@ class ShipTable extends Component<TableProps> {
 
     updateTableData = () => {
         if (this.props.options?.showLogs) {
-            console.log('updateTableData')
+            console.log('=== updateTableData ===')
         }
-        this.toggleDataLoadingSpin()
         const requestDataParams = this.getRequestDataParams()
         this.props.updateTableData(requestDataParams)
-        this.toggleDataLoadingSpin()
     }
 
     getRequestDataParams = () => {
@@ -133,15 +133,14 @@ class ShipTable extends Component<TableProps> {
         this.setState(this.state)
     }
 
-    toggleDataLoadingSpin = () => {
-        this.state.isDataLoadingSpinActive = !this.state.isDataLoadingSpinActive
-        this.setState(this.state)
-    }
+    // toggleDataLoadingSpin = () => {
+    //     this.setState({ isDataLoadingSpinActive: !this.state.isDataLoadingSpinActive })
+    // }
 
     static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
         const filterRowId: string = 'filter'
         if (props.options?.showLogs) {
-            console.log('updateTableDataByFilterRow')
+            console.log('=== updateTableDataByFilterRow ===')
         }
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
@@ -251,7 +250,8 @@ class ShipTable extends Component<TableProps> {
 
     render() {
         if (this.props.options?.showLogs) {
-            console.log('Rendered! this.state:')
+            console.log('=== ShipTable render() ===')
+            console.log('this.state:')
             console.log(this.state)
         }
 
