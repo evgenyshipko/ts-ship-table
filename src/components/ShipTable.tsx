@@ -226,11 +226,23 @@ class ShipTable extends Component<TableProps> {
         return tableData
     }
 
+    updateTableDataWithValidPaginationInfo = () => {
+        if (this.props.tableData.rows.length === 0 &&
+        this.props.tableData.totalRowQuantity > 0) {
+            if (this.props.options?.showLogs) {
+                console.log('updateTableDataWithValidPaginationInfo')
+            }
+            this.updateTableData()
+        }
+    }
+
     render() {
         if (this.props.options?.showLogs) {
             console.log('Rendered! this.state:')
             console.log(this.state)
         }
+
+        this.updateTableDataWithValidPaginationInfo()
 
         let pagination = <></>
         if (this.state.tableDataRows.length > 0 && this.props.options?.pagination) {
