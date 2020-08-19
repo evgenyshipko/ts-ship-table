@@ -65,8 +65,10 @@ class ShipTable extends Component<TableProps> {
         return {}
     }
 
-    componentDidUpdate() {
-        if (this.props.tableData.rows.length === 0 &&
+    componentDidUpdate(prevProps: TableProps) {
+        if (prevProps.tableData.rows.length > 0 &&
+            prevProps.tableData.totalRowQuantity > 0 &&
+            this.props.tableData.rows.length === 0 &&
             this.props.tableData.totalRowQuantity > 0) {
             if (this.props.options?.showLogs) {
                 console.log('ShipTable componentDidUpdate')
