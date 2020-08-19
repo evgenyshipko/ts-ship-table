@@ -57,7 +57,8 @@ class ShipTable extends Component<TableProps> {
                 console.log('=== getDerivedStateFromProps ===')
             }
             const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
-            const tableDataRows = props.tableData.rows
+            const tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
+
             return {
                 ...state,
                 prevPropsId: props.id,
@@ -104,7 +105,6 @@ class ShipTable extends Component<TableProps> {
         }
         const requestDataParams = this.getRequestDataParams()
         this.props.updateTableData(requestDataParams)
-        ShipTable.updateTableDataByFilterRow(this.props, this.state, this.state.tableDataRows)
     }
 
     getRequestDataParams = () => {
