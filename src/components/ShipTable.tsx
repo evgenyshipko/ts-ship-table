@@ -243,7 +243,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let pagination = <></>
-        if (this.state.tableDataRows.length > 0 && this.props.options?.pagination) {
+        if (this.props.options?.pagination) {
             pagination = (
                 <div className='ship-ant-pagination-div'>
                     <Pagination
