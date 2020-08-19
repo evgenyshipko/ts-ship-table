@@ -53,6 +53,9 @@ class ShipTable extends Component<TableProps> {
 
     static getDerivedStateFromProps(props: TableProps, state: State) {
         if (props.id !== state.prevPropsId) {
+            if (props.options?.showLogs) {
+                console.log('getDerivedStateFromProps')
+            }
             const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
             const tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
             return {
@@ -143,9 +146,6 @@ class ShipTable extends Component<TableProps> {
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
         })
-        if (props.options?.showLogs) {
-            console.log(`index: ${index}`)
-        }
         if (state.isSearchActive && index === -1) {
             if (props.options?.showLogs) {
                 console.log('addFilterRow')
