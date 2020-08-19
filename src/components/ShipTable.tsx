@@ -141,6 +141,10 @@ class ShipTable extends Component<TableProps> {
             return warehouseRowData.id === filterRowId
         })
         if (state.isSearchActive && (index === -1 || dataToTransform.length === 0)) {
+            if (props.options?.showLogs) {
+                console.log('addFilterRow')
+            }
+
             const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
             props.columns.forEach((columnData) => {
                 const columnId = columnData.field
@@ -163,6 +167,9 @@ class ShipTable extends Component<TableProps> {
 
             dataToTransform.unshift(filterRow)
         } else if (index >= 0) {
+            if (props.options?.showLogs) {
+                console.log('deleteFilterRow')
+            }
             dataToTransform.splice(index, 1)
         }
 
@@ -299,7 +306,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let undoSearch = <></>
-        if (this.state.isSearchActive && Object.keys(this.state.searchInfo).length > 0){
+        if (this.state.isSearchActive && Object.keys(this.state.searchInfo).length > 0) {
             undoSearch = (
                 <Button
                     icon={<CloseOutlined />}

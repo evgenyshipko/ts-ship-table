@@ -54,7 +54,7 @@ class App extends Component {
         {
             field: 'completed',
             title: 'Выполнено?',
-            filterRendererType: 'date',
+            filterRendererType: 'text',
             class: 'reporter-column-class',
             sortEnable: false
         }
