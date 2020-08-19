@@ -140,7 +140,7 @@ class ShipTable extends Component<TableProps> {
         const index = dataToTransform.findIndex((warehouseRowData) => {
             return warehouseRowData.id === filterRowId
         })
-        if (state.isSearchActive && index === -1) {
+        if (state.isSearchActive && (index === -1 || dataToTransform.length === 0)) {
             const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
             props.columns.forEach((columnData) => {
                 const columnId = columnData.field
