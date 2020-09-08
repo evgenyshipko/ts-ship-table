@@ -243,7 +243,9 @@ class ShipTable extends Component<TableProps> {
     }
 
     handleUndoSearch = () => {
-        this.toggleSearchActive()
+        if (this.state.isSearchActive) {
+            this.toggleSearchActive()
+        }
         this.state.searchInfo = {}
         this.setState(this.state)
         this.updateTableData()
