@@ -313,7 +313,7 @@ class ShipTable extends Component<TableProps> {
         }
 
         let undoSearch = <></>
-        if (this.state.isSearchActive && Object.keys(this.state.searchInfo).length > 0) {
+        if (Object.keys(this.state.searchInfo).length > 0) {
             undoSearch = (
                 <Button
                     icon={<CloseOutlined />}
