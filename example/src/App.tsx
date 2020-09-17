@@ -43,7 +43,8 @@ class App extends Component {
             field: 'userId',
             title: 'id юзера',
             filterRendererType: 'number',
-            class: 'userid-column-class'
+            class: 'userid-column-class',
+            grouped: true
         },
         {
             field: 'title',
@@ -73,6 +74,7 @@ class App extends Component {
                 completed: { value: 'no', renderer: CompletedColumnRender }
             }
         }
+
         this.state.addedRows.unshift(row)
         this.updateTableData({})
         this.setState(this.state)
@@ -86,6 +88,15 @@ class App extends Component {
             this.state.addedRows.forEach((addedRow) => {
                 this.state.tableData.rows.unshift(addedRow)
             })
+
+
+            console.log('this.state.tableData.rows')
+            console.log(this.state.tableData.rows)
+
+            // add parents
+            this.state.tableData.rows[1].parent = this.state.tableData.rows[0].id
+            this.state.tableData.rows[2].parent = this.state.tableData.rows[0].id
+
             this.setState(this.state)
         })
     }
@@ -107,7 +118,7 @@ class App extends Component {
 
     transformResponseData = (response: AxiosResponse) => {
         const responseData: Array<ResponseDataType> = response.data
-        const rows: Array<RowType> = responseData.map((row) => {
+        const rows: Array<RowType> = responseData.slice(0, 5).map((row) => {
             const data = {
                 userId: { value: row.userId },
                 title: { value: row.title },
