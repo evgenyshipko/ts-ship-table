@@ -211,8 +211,7 @@ class ShipTable extends Component<TableProps> {
     getTableData = () => {
         const columnList = this.props.columns.map((columnInfo) => {
             if (
-                columnInfo.sortEnable === undefined ||
-                columnInfo.sortEnable === true
+                columnInfo.sortEnable === undefined || columnInfo.sortEnable
             ) {
                 columnInfo.renderer = RenderHeaderWarehouseTable
             }
@@ -231,13 +230,18 @@ class ShipTable extends Component<TableProps> {
             render: () => { this.render() }
         }
 
+        let tableClassName = 'ship-table'
+        if (this.props.options?.styledTable) {
+            tableClassName = 'ship-table-styled'
+        }
+
         const tableData: TableDataType = {
             columns: columnList,
             rows: this.state.tableDataRows,
             props: tableDataProps,
             defaultCellStyle: this.props.defaultCellStyle,
             style: this.props.style,
-            class: this.props.class
+            class: this.props.class + ' ' + tableClassName
         }
         return tableData
     }
@@ -327,13 +331,8 @@ class ShipTable extends Component<TableProps> {
             )
         }
 
-        let mainDivClassName = 'ship-table-div'
-        if (this.props.options?.styledTable) {
-            mainDivClassName = 'ship-table-div-styled'
-        }
-
         return (
-            <div className={mainDivClassName}>
+            <div className='ship-table-div'>
                 <div className='ship-first-line'>
                     {this.props.jsxElementsToHeader}
                     {testModeToggleDiv}

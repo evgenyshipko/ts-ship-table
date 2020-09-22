@@ -118,7 +118,7 @@ class App extends Component {
 
     transformResponseData = (response: AxiosResponse) => {
         const responseData: Array<ResponseDataType> = response.data
-        const rows: Array<RowType> = responseData.slice(0, 5).map((row) => {
+        const rows: Array<RowType> = responseData.map((row) => {
             const data = {
                 userId: { value: row.userId },
                 title: { value: row.title },

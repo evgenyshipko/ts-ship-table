@@ -1,37 +1,28 @@
 
-.ship-table-div-styled, .ship-table-div{
-    display: table;
-    margin: 0 auto;
-}
-
-.ship-table-div-styled table,
-.ship-table-div table,
-.ship-table-div tr,
-.ship-table-div-styled tr,
-.ship-table-div th,
-.ship-table-div-styled th,
-.ship-table-div td,
-.ship-table-div-styled td{
+.ship-table-styled table,
+.ship-table-styled tr,
+.ship-table-styled th,
+.ship-table-styled td{
     border: 1px solid #ddd;
     border-collapse: collapse;
 }
 
-.ship-table-div-styled th {
+.ship-table-div th {
     top: 0;
     z-index: 1;
     position: sticky;
 }
 
-.ship-table-div-styled th {
+.ship-table-styled th {
     padding: 10px;
     background-color: gainsboro;
 }
 
-.ship-table-div-styled td {
+.ship-table-styled td {
     padding: 10px;
 }
 
-.ship-table-div-styled .filter-row td{
+.ship-table-div .ship-table-styled .filter-row td{
     position: sticky;
     top: calc(43px);
     z-index: 1;
