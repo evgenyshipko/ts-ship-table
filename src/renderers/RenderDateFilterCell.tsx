@@ -26,7 +26,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                 searchInfo = {}
             }
             if (startDate != null) {
-                searchInfo.startDate = startDate.format(C.dateFormat)
+                searchInfo.startDate = startDate.format(C.DATE_FORMAT)
             } else {
                 delete searchInfo.startDate
             }

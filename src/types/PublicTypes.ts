@@ -1,4 +1,4 @@
-import {ComponentType, RefObject} from 'react'
+import { ComponentType, RefObject } from 'react'
 import {
     ColumnType as BSColumnType,
     RowType as BSRowType,
@@ -43,10 +43,10 @@ export interface TableOptions {
     styledTable?: boolean,
     testSwitch?: boolean,
     search?: boolean,
-    searchType?: 'front' | 'back',
+    searchType?: SearchMode,
     pagination?: boolean,
     sorting?:boolean,
-    sortingType?: 'front' | 'back',
+    sortingType?: SortMode,
     showLogs?:boolean
 }
 
@@ -56,7 +56,11 @@ export interface ResponseTableData {
 }
 
 export interface ColumnType extends BSColumnType{
-    columnValueType?: 'text' | 'date' | 'number',
+    columnValueType?: ColumnValueType,
     customFilterRenderer?: ComponentType<RendererProps>,
     sortEnable?: boolean
 }
+
+export type ColumnValueType = 'date' | 'number' | 'text' | undefined
+export type SearchMode = 'front' | 'back'
+export type SortMode = 'front' | 'back'

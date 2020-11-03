@@ -1,6 +1,6 @@
 class C {
-    static dateFormat = 'YYYY-MM-DD'
-    static filterRowId = 'filter'
+    static DATE_FORMAT = 'YYYY-MM-DD'
+    static FILTER_ROW_ID = 'filter'
 }
 
 export default C
