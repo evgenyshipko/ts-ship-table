@@ -203,22 +203,22 @@ class ShipTable extends Component<TableProps> {
     private static sortTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
         const sortColumnId = state.sortInfo.columnId
         const asc = state.sortInfo.asc === undefined ? true : state.sortInfo.asc
-
-        ShipTable.consoleLog(props, 'sortColumnId', sortColumnId, 'asc', asc)
-
         const columnValueType = ShipTable.getColumnValueType(props, sortColumnId)
-
         if (sortColumnId) {
             tableRows = tableRows.sort((a, b) => {
                 const aValue = a.data[sortColumnId]?.value
                 const bValue = b.data[sortColumnId]?.value
-                if (a.id === C.FILTER_ROW_ID || (aValue !== undefined && bValue === undefined)) {
+                if (a.id === C.FILTER_ROW_ID) {
                     return -1
-                } else if (b.id === C.FILTER_ROW_ID || (aValue === undefined && bValue !== undefined)) {
+                } else if (b.id === C.FILTER_ROW_ID) {
                     return 1
                 }
                 if (aValue !== undefined && bValue !== undefined) {
                     return ShipTable.sortByValueType(columnValueType, asc, aValue, bValue)
+                } else if (aValue !== undefined && bValue === undefined) {
+                    return -1
+                } else if (aValue === undefined && bValue !== undefined) {
+                    return 1
                 }
                 return 0
             })
@@ -259,13 +259,12 @@ class ShipTable extends Component<TableProps> {
     }
 
     private static filterTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
-        const filterColumnIdList = Object.keys(state.searchInfo)
-        tableRows = tableRows.filter((row) => {
+        return tableRows.filter((row) => {
             if (row.id === C.FILTER_ROW_ID) {
                 return true
             }
             let isFilterPassed: boolean = true
-            filterColumnIdList.forEach((columnId) => {
+            Object.keys(state.searchInfo).forEach((columnId) => {
                 const columnType = ShipTable.getColumnValueType(props, columnId)
                 const value = row.data[columnId]?.value
                 const filterValue = state.searchInfo[columnId]
@@ -273,7 +272,6 @@ class ShipTable extends Component<TableProps> {
             })
             return isFilterPassed
         })
-        return tableRows
     }
 
     private static getColumnValueType = (props: TableProps, columnId: string | undefined) => {
