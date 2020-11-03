@@ -3,6 +3,7 @@ import { RendererProps } from 'react-bs-table'
 import moment from 'moment'
 import { Button, DatePicker } from 'antd'
 import { SearchOutlined, UndoOutlined } from '@ant-design/icons'
+import C from "../constants/C";
 
 interface State {
     startDateVisible: boolean,
@@ -25,7 +26,7 @@ class RenderDateFilterCell extends Component<RendererProps> {
                 searchInfo = {}
             }
             if (startDate != null) {
-                searchInfo.startDate = startDate.format('YYYY-MM-DD')
+                searchInfo.startDate = startDate.format(C.dateFormat)
             } else {
                 delete searchInfo.startDate
             }

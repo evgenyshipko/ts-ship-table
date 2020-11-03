@@ -8,31 +8,25 @@ import {
 
 import 'ts-ship-table/dist/index.css'
 import { v4 as uuidv4 } from 'uuid'
-import axios, { AxiosResponse } from 'axios'
 import CompletedColumnRender from './renderers/CompletedColumnRender'
 import { RendererProps, ResponseTableData } from '../../src'
 import { Button } from 'antd'
+import DateRenderer from './renderers/DateRenderer'
 
 interface State {
     isPaginationNeeded: boolean,
-    tableData: ResponseTableData,
+    tableData1: ResponseTableData,
+    tableData2: ResponseTableData,
     addedRows: Array<RowType>
 }
 
-interface ResponseDataType {
-    userId: number,
-    title: string,
-    completed: boolean
-}
-
 class App extends Component {
-  state: State = {
-      isPaginationNeeded: true,
-      tableData: { totalRowQuantity: 0, rows: [] },
-      addedRows: []
-  }
-
-   endPointPath = 'https://jsonplaceholder.typicode.com/todos'
+      state: State = {
+          isPaginationNeeded: true,
+          tableData1: { totalRowQuantity: 0, rows: [] },
+          tableData2: { totalRowQuantity: 0, rows: [] },
+          addedRows: []
+      }
 
     myRender: ComponentType<RendererProps> = (props: RendererProps) => {
         return <div>privet {props.rowData.class}</div>
@@ -42,97 +36,122 @@ class App extends Component {
         {
             field: 'userId',
             title: 'id юзера',
-            filterRendererType: 'number',
+            columnValueType: 'number',
             class: 'userid-column-class',
-            grouped: true
+            grouped: true,
+            sortEnable: true
         },
         {
             field: 'title',
             title: 'Название',
             customFilterRenderer: this.myRender,
-            class: 'summary-column-class'
+            class: 'summary-column-class',
+            columnValueType: 'text',
+            sortEnable: true
         },
         {
             field: 'completed',
             title: 'Выполнено?',
-            filterRendererType: 'text',
             class: 'reporter-column-class',
-            sortEnable: false
+            sortEnable: true
+        },
+        {
+            field: 'date',
+            title: 'Дата',
+            columnValueType: 'date',
+            class: 'date-column-class',
+            sortEnable: true
         }
     ]
 
     componentDidMount() {
-        this.updateTableData({})
+        this.updateTableData1()
+        this.updateTableData2()
     }
 
     addRow = () => {
         const row: RowType = {
             id: uuidv4(),
             data: {
-                userId: { value: 'userId' },
-                title: { value: 'hello' },
-                completed: { value: 'no', renderer: CompletedColumnRender }
+                userId: { value: 6 },
+                title: { value: 'ящер' },
+                completed: { value: false, renderer: CompletedColumnRender }
             }
         }
 
         this.state.addedRows.unshift(row)
-        this.updateTableData({})
+        this.updateTableData1()
         this.setState(this.state)
     }
 
-    updateTableData = (requestArgs: { [key: string]: any }) => {
+    updateTableData1 = () => {
         console.log('path by update table data')
-        console.log(this.endPointPath + this.getRequestDataParamsString(requestArgs))
-        axios.get(this.endPointPath, {}).then(response => {
-            this.state.tableData = this.transformResponseData(response)
-            this.state.addedRows.forEach((addedRow) => {
-                this.state.tableData.rows.unshift(addedRow)
-            })
-
-
-            console.log('this.state.tableData.rows')
-            console.log(this.state.tableData.rows)
-
-            // add parents
-            this.state.tableData.rows[1].parent = this.state.tableData.rows[0].id
-            this.state.tableData.rows[2].parent = this.state.tableData.rows[0].id
-
-            this.setState(this.state)
-        })
-    }
-
-    getRequestDataParamsString = (requestArgs: { [key: string]: any }) => {
-        let paramsStr: string = ''
-        if (requestArgs !== undefined) {
-            Object.keys(requestArgs).forEach((key, index) => {
-                if (index === 0) {
-                    paramsStr += '?'
-                } else {
-                    paramsStr += '&'
-                }
-                paramsStr += `${key}=${JSON.stringify(requestArgs[key])}`
-            })
+        const rows = this.getTestRows()
+        this.state.tableData1 = {
+            rows: rows,
+            totalRowQuantity: rows.length
         }
-        return paramsStr
+        this.state.addedRows.forEach((addedRow) => {
+            this.state.tableData1.rows.unshift(addedRow)
+        })
+        this.setState(this.state)
     }
 
-    transformResponseData = (response: AxiosResponse) => {
-        const responseData: Array<ResponseDataType> = response.data
-        const rows: Array<RowType> = responseData.map((row) => {
-            const data = {
-                userId: { value: row.userId },
-                title: { value: row.title },
-                completed: { value: row.completed, renderer: CompletedColumnRender }
-            }
-            const result: RowType = {
-                id: uuidv4(),
-                data: data
-            }
-            return result
+    updateTableData2 = () => {
+        const rows = this.getTestRows()
+        this.state.tableData2 = {
+            rows: rows,
+            totalRowQuantity: rows.length
+        }
+        this.state.addedRows.forEach((addedRow) => {
+            this.state.tableData2.rows.unshift(addedRow)
         })
+        // add parents
+        this.state.tableData2.rows[1].parent = this.state.tableData2.rows[0].id
+        this.state.tableData2.rows[2].parent = this.state.tableData2.rows[0].id
+        this.setState(this.state)
+    }
 
-        const result: ResponseTableData = { rows: rows, totalRowQuantity: rows.length }
-        return result
+
+    getTestRows = () => {
+        return ([
+            {
+                id: uuidv4(),
+                data: {
+                    userId: { value: 2 },
+                    title: { value: 'абрикос' },
+                    completed: { value: true, renderer: CompletedColumnRender },
+                    date: { value: '2020-11-18T03:24:00', renderer: DateRenderer }
+                }
+            },
+            {
+                id: uuidv4(),
+                data: {
+                    userId: { value: 1 },
+                    title: { value: 'авокадо' },
+                    completed: { value: false, renderer: CompletedColumnRender },
+                    date: { value: '2020-10-17T03:24:00', renderer: DateRenderer }
+                }
+            },
+            {
+                id: uuidv4(),
+                data: {
+                    userId: { value: 3 },
+                    title: { value: 'булка' },
+                    completed: { value: true, renderer: CompletedColumnRender },
+                    date: { value: '1995-12-17T03:24:00', renderer: DateRenderer }
+                }
+            },
+            {
+                id: uuidv4(),
+                data: {
+                    userId: { value: 4 },
+                    title: { value: 'aзбука' },
+                    completed: { value: false, renderer: CompletedColumnRender },
+                    date: { value: '2020-11-17T03:24:00', renderer: DateRenderer }
+                }
+            }
+        ])
     }
 
     ref: RefObject<any> = React.createRef()
@@ -140,6 +159,7 @@ class App extends Component {
     render() {
         const addRow = (
             <Button
+                key='add-row'
                 onClick={() => {
                     this.addRow()
                 }}
@@ -150,6 +170,7 @@ class App extends Component {
 
         const pbtn = (
             <Button
+                key='change-pgnation-btn'
                 onClick={() => {
                     this.state.isPaginationNeeded = !this.state.isPaginationNeeded
                     this.setState(this.state)
@@ -161,15 +182,43 @@ class App extends Component {
 
         return (
             <div>
+                <span>
+                    1. Table with ability to add rows, switch pagination, search and sort on frontend.
+                </span>
                 <ShipTable
                     id={uuidv4()}
                     class='ship-table-prototype-1'
                     columns={this.columnInfoList}
-                    updateTableData={this.updateTableData}
-                    tableData={this.state.tableData}
-                    options={{ pagination: this.state.isPaginationNeeded, search: true, styledTable: true, sorting: true, showLogs: true }}
+                    updateTableData={this.updateTableData1}
+                    tableData={this.state.tableData1}
+                    options={
+                        {
+                            pagination: this.state.isPaginationNeeded,
+                            search: true,
+                            searchType: 'front',
+                            styledTable: true,
+                            sorting: true,
+                            sortingType: 'front',
+                            showLogs: true
+                        }
+                    }
                     ref={this.ref}
                     jsxElementsToHeader={[pbtn, addRow]}
+                />
+                <span>
+                    2. Table with tree-structure
+                </span>
+                <ShipTable
+                    id={uuidv4()}
+                    class='ship-table-prototype-1'
+                    columns={this.columnInfoList}
+                    updateTableData={this.updateTableData2}
+                    tableData={this.state.tableData2}
+                    options={
+                        {
+                            styledTable: true
+                        }
+                    }
                 />
             </div>
         )

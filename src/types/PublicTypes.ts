@@ -43,8 +43,10 @@ export interface TableOptions {
     styledTable?: boolean,
     testSwitch?: boolean,
     search?: boolean,
+    searchType?: 'front' | 'back',
     pagination?: boolean,
     sorting?:boolean,
+    sortingType?: 'front' | 'back',
     showLogs?:boolean
 }
 
@@ -54,7 +56,7 @@ export interface ResponseTableData {
 }
 
 export interface ColumnType extends BSColumnType{
-    filterRendererType?: 'text' | 'date' | 'number',
+    columnValueType?: 'text' | 'date' | 'number',
     customFilterRenderer?: ComponentType<RendererProps>,
     sortEnable?: boolean
 }

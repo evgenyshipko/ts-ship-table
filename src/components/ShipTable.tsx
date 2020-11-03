@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Table, RowType, TableDataType } from 'react-bs-table'
+import { RowType, Table, TableDataType } from 'react-bs-table'
 import { Button, Pagination, Spin } from 'antd'
-import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons'
 import TextSwitch from './TextSwitch'
 import 'antd/dist/antd.css'
 import '../styles/table.css'
@@ -10,16 +10,12 @@ import RenderHeaderWarehouseTable from '../renderers/RenderHeaderWarehouseTable'
 import RenderTextFilterCell from '../renderers/RenderTextFilterCell'
 import RenderDateFilterCell from '../renderers/RenderDateFilterCell'
 
-import {
-    PaginationInfoType,
-    SearchInfoType,
-    SortInfoType
-} from '../types/PrivateTypes'
+import { PaginationInfoType, SearchInfoType, SortInfoType } from '../types/PrivateTypes'
 
-import {
-    TableProps
-} from '../types/PublicTypes'
+import { TableProps } from '../types/PublicTypes'
 import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell'
+import moment from 'moment'
+import C from '../constants/C'
 
 interface State {
     prevPropsId: string,
@@ -53,12 +49,15 @@ class ShipTable extends Component<TableProps> {
 
     static getDerivedStateFromProps(props: TableProps, state: State) {
         if (props.id !== state.prevPropsId) {
-            if (props.options?.showLogs) {
-                console.log('=== getDerivedStateFromProps ===')
-            }
+            ShipTable.consoleLog(props, '=== getDerivedStateFromProps ===')
             const paginationInfo = ShipTable.getValidPaginationInfo(props, state.paginationInfo)
-            const tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
-
+            let tableDataRows = ShipTable.updateTableDataByFilterRow(props, state, props.tableData.rows)
+            if (props.options?.search && props.options?.searchType === 'front' && state.searchInfo) {
+                tableDataRows = ShipTable.filterTableRows(props, state, tableDataRows)
+            }
+            if (props.options?.sorting && props.options.sortingType === 'front' && state.sortInfo) {
+                tableDataRows = ShipTable.sortTableRows(props, state, tableDataRows)
+            }
             return {
                 ...state,
                 prevPropsId: props.id,
@@ -69,6 +68,18 @@ class ShipTable extends Component<TableProps> {
         return {}
     }
 
+    consoleLog(...args: any) {
+        if (this.props.options?.showLogs) {
+            console.log(...args)
+        }
+    }
+
+    static consoleLog(props: TableProps, ...args: any) {
+        if (props.options?.showLogs) {
+            console.log(...args)
+        }
+    }
+
     componentDidUpdate(prevProps: TableProps) {
         if (
             prevProps.tableData.rows.length > 0 &&
@@ -76,9 +87,7 @@ class ShipTable extends Component<TableProps> {
             this.props.tableData.rows.length === 0 &&
             this.props.tableData.totalRowQuantity > 0
         ) {
-            if (this.props.options?.showLogs) {
-                console.log('=== componentDidUpdate ===')
-            }
+            this.consoleLog('=== componentDidUpdate ===')
             this.updateTableData()
         }
     }
@@ -100,9 +109,7 @@ class ShipTable extends Component<TableProps> {
     }
 
     updateTableData = () => {
-        if (this.props.options?.showLogs) {
-            console.log('=== updateTableData ===')
-        }
+        this.consoleLog('=== updateTableData ===')
         const requestDataParams = this.getRequestDataParams()
         this.props.updateTableData(requestDataParams)
     }
@@ -113,10 +120,10 @@ class ShipTable extends Component<TableProps> {
             params.recordsPerPage = this.state.paginationInfo.recordsPerPage
             params.pageNumber = this.state.paginationInfo.pageNumber
         }
-        if (Object.keys(this.state.searchInfo).length > 0) {
+        if (Object.keys(this.state.searchInfo).length > 0 && this.props.options?.searchType !== 'front') {
             params.searchInfo = this.state.searchInfo
         }
-        if (this.state.sortInfo.columnId !== undefined) {
+        if (this.state.sortInfo.columnId !== undefined && this.props.options?.sortingType !== 'front') {
             params.sortData = { column: this.state.sortInfo.columnId, asc: this.state.sortInfo.asc }
         }
         return params
@@ -134,35 +141,25 @@ class ShipTable extends Component<TableProps> {
         this.setState(this.state)
     }
 
-    // toggleDataLoadingSpin = () => {
-    //     this.setState({ isDataLoadingSpinActive: !this.state.isDataLoadingSpinActive })
-    // }
-
     static updateTableDataByFilterRow = (props: TableProps, state: State, dataToTransform: Array<RowType>) => {
-        const filterRowId: string = 'filter'
-        if (props.options?.showLogs) {
-            console.log('=== updateTableDataByFilterRow ===')
-        }
+        ShipTable.consoleLog(props, '=== updateTableDataByFilterRow ===')
         const index = dataToTransform.findIndex((warehouseRowData) => {
-            return warehouseRowData.id === filterRowId
+            return warehouseRowData.id === C.filterRowId
         })
         if (state.isSearchActive && index === -1) {
-            if (props.options?.showLogs) {
-                console.log('addFilterRow')
-            }
-
-            const filterRow: any = { id: filterRowId, class: 'filter-row', data: {} }
+            ShipTable.consoleLog(props, 'addFilterRow')
+            const filterRow: any = { id: C.filterRowId, class: 'filter-row', data: {} }
             props.columns.forEach((columnData) => {
                 const columnId = columnData.field
-                switch (columnData.filterRendererType) {
-                case 'text':
-                    filterRow.data[columnId] = { renderer: RenderTextFilterCell }
-                    break
+                switch (columnData.columnValueType) {
                 case 'date':
                     filterRow.data[columnId] = { renderer: RenderDateFilterCell }
                     break
                 case 'number':
                     filterRow.data[columnId] = { renderer: RenderNumberFilterCell }
+                    break
+                default:
+                    filterRow.data[columnId] = { renderer: RenderTextFilterCell }
                     break
                 }
 
@@ -170,12 +167,9 @@ class ShipTable extends Component<TableProps> {
                     filterRow.data[columnId] = { renderer: columnData.customFilterRenderer }
                 }
             })
-
             dataToTransform.unshift(filterRow)
         } else if (index >= 0) {
-            if (props.options?.showLogs) {
-                console.log('deleteFilterRow')
-            }
+            ShipTable.consoleLog(props, 'deleteFilterRow')
             dataToTransform.splice(index, 1)
         }
 
@@ -206,6 +200,138 @@ class ShipTable extends Component<TableProps> {
         this.state.isTestModeActive = !this.state.isTestModeActive
         this.setState(this.state)
         this.updateTableData()
+    }
+
+    private static sortTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
+        const sortColumnId = state.sortInfo.columnId
+        const asc = state.sortInfo.asc
+
+        const columnValueType = props.columns.find((columnData) => {
+            return columnData.field === sortColumnId
+        })?.columnValueType
+
+        if (sortColumnId !== undefined && asc !== undefined) {
+            tableRows = tableRows.sort((a, b) => {
+                if (a.id === C.filterRowId && b.id !== C.filterRowId) {
+                    return -1
+                } else if (b.id === C.filterRowId && a.id !== C.filterRowId) {
+                    return 1
+                }
+                const aValue = a.data[sortColumnId]?.value
+                const bValue = b.data[sortColumnId]?.value
+                if (aValue !== undefined && bValue !== undefined) {
+                    return ShipTable.sortByValueType(props, columnValueType, asc, aValue, bValue)
+                } else if (aValue !== undefined && bValue === undefined) {
+                    return -1
+                } else if (aValue === undefined && bValue !== undefined) {
+                    return 1
+                }
+                return 0
+            })
+        }
+        ShipTable.consoleLog(props, 'sortTableRows', tableRows)
+        return tableRows
+    }
+
+    private static sortByValueType = (props: TableProps, columnValueType: 'date' | 'text' | 'number' | undefined, asc: boolean, a: string, b: string) => {
+        switch (columnValueType) {
+        case 'text':
+            return ShipTable.sortText(props, asc, a, b)
+        case 'date':
+            return ShipTable.sortDate(asc, a, b)
+        default:
+            return ShipTable.defaultSort(asc, a, b)
+        }
+    }
+
+    private static sortText = (props: TableProps, asc: boolean, a: string, b: string) => {
+        const collator = new Intl.Collator(['en-US', 'ru-RU'], { sensitivity: 'accent' })
+        const comparingResult = collator.compare(a, b)
+        ShipTable.consoleLog(props, a, 'a', b, 'b', 'comparingResult', comparingResult)
+        return asc ? comparingResult : comparingResult * (-1)
+    }
+
+    private static sortDate = (asc: boolean, a: string, b: string) => {
+        const aMoment = moment(a, C.dateFormat)
+        const bMoment = moment(b, C.dateFormat)
+        return ShipTable.defaultSort(asc, aMoment, bMoment)
+    }
+
+    private static defaultSort = (asc: boolean, a: any, b: any) => {
+        if (asc) {
+            return a > b ? 1 : -1
+        } else {
+            return a < b ? 1 : -1
+        }
+    }
+
+    private static filterTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
+        const columnFilterTypeMapping = {}
+        Object.keys(state.searchInfo).forEach((key) => {
+            columnFilterTypeMapping[key] = props.columns.find((columnData) => {
+                return columnData.field === key
+            })?.columnValueType
+        })
+        tableRows = tableRows.filter((row) => {
+            if (row.id === C.filterRowId) {
+                return true
+            }
+            let isTableRowEnable: boolean = true
+            Object.keys(state.searchInfo).forEach((key) => {
+                const columnRendererType = columnFilterTypeMapping[key]
+                const rowValue = row.data[key]?.value
+                const searchValue = state.searchInfo[key]
+                isTableRowEnable = isTableRowEnable && ShipTable.isTableColumnEnabled(columnRendererType, rowValue, searchValue)
+            })
+            return isTableRowEnable
+        })
+        return tableRows
+    }
+
+    private static isTableColumnEnabled(columnRendererType: string, rowValue: any, searchValue: any) {
+        let result: boolean = false
+        if (rowValue !== undefined && searchValue !== undefined) {
+            switch (columnRendererType) {
+            case 'number':
+                result = ShipTable.isNumberValueEnabled(rowValue, searchValue)
+                break
+            case 'date':
+                result = ShipTable.isDateValueEnabled(rowValue, searchValue)
+                break
+            default:
+                result = ShipTable.isTextValueEnabled(rowValue, searchValue)
+                break
+            }
+        }
+        return result
+    }
+
+    private static isNumberValueEnabled(rowValue: Number, searchValue: any) {
+        if (searchValue.minValue && searchValue.maxValue) {
+            return rowValue >= searchValue.minValue && rowValue <= searchValue.maxValue
+        } else if (searchValue.minValue) {
+            return rowValue >= searchValue.minValue
+        } else if (searchValue.maxValue) {
+            return rowValue <= searchValue.maxValue
+        }
+        return false
+    }
+
+    private static isDateValueEnabled(rowValue: string, searchValue: any) {
+        const dateValue = moment(rowValue, C.dateFormat)
+        if (searchValue.endDate && searchValue.startDate) {
+            return dateValue >= moment(searchValue.startDate) && dateValue <= moment(searchValue.endDate)
+        } else if (searchValue.endDate) {
+            return dateValue <= moment(searchValue.endDate)
+        } else if (searchValue.startDate) {
+            return dateValue >= moment(searchValue.startDate)
+        }
+        return false
+    }
+
+    private static isTextValueEnabled(rowValue: string, searchValue: any) {
+        const textValue = rowValue.toString().toLowerCase()
+        return textValue.includes(searchValue.toLowerCase())
     }
 
     getTableData = () => {
@@ -256,11 +382,8 @@ class ShipTable extends Component<TableProps> {
     }
 
     render() {
-        if (this.props.options?.showLogs) {
-            console.log('=== ShipTable render() ===')
-            console.log('this.state:')
-            console.log(this.state)
-        }
+        this.consoleLog('=== ShipTable render() ===')
+        this.consoleLog('this.state', this.state)
 
         let pagination = <></>
         if (this.props.options?.pagination) {
@@ -307,6 +430,7 @@ class ShipTable extends Component<TableProps> {
         if (this.props.options?.search) {
             searchButton = (
                 <Button
+                    key='ship-search-btn'
                     icon={<SearchOutlined />}
                     className='ship-search-btn'
                     onClick={() => {
