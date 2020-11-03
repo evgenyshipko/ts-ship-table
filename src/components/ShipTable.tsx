@@ -206,6 +206,8 @@ class ShipTable extends Component<TableProps> {
         const sortColumnId = state.sortInfo.columnId
         const asc = state.sortInfo.asc
 
+        ShipTable.consoleLog(props, 'sortColumnId', sortColumnId, 'asc', asc)
+
         const columnValueType = props.columns.find((columnData) => {
             return columnData.field === sortColumnId
         })?.columnValueType
@@ -220,7 +222,7 @@ class ShipTable extends Component<TableProps> {
                 const aValue = a.data[sortColumnId]?.value
                 const bValue = b.data[sortColumnId]?.value
                 if (aValue !== undefined && bValue !== undefined) {
-                    return ShipTable.sortByValueType(props, columnValueType, asc, aValue, bValue)
+                    return ShipTable.sortByValueType(columnValueType, asc, aValue, bValue)
                 } else if (aValue !== undefined && bValue === undefined) {
                     return -1
                 } else if (aValue === undefined && bValue !== undefined) {
@@ -233,10 +235,10 @@ class ShipTable extends Component<TableProps> {
         return tableRows
     }
 
-    private static sortByValueType = (props: TableProps, columnValueType: 'date' | 'text' | 'number' | undefined, asc: boolean, a: string, b: string) => {
+    private static sortByValueType = (columnValueType: 'date' | 'text' | 'number' | undefined, asc: boolean, a: string, b: string) => {
         switch (columnValueType) {
         case 'text':
-            return ShipTable.sortText(props, asc, a, b)
+            return ShipTable.sortText(asc, a, b)
         case 'date':
             return ShipTable.sortDate(asc, a, b)
         default:
@@ -244,10 +246,9 @@ class ShipTable extends Component<TableProps> {
         }
     }
 
-    private static sortText = (props: TableProps, asc: boolean, a: string, b: string) => {
+    private static sortText = (asc: boolean, a: string, b: string) => {
         const collator = new Intl.Collator(['en-US', 'ru-RU'], { sensitivity: 'accent' })
         const comparingResult = collator.compare(a, b)
-        ShipTable.consoleLog(props, a, 'a', b, 'b', 'comparingResult', comparingResult)
         return asc ? comparingResult : comparingResult * (-1)
     }
 

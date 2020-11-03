@@ -146,7 +146,7 @@ class App extends Component {
                 id: uuidv4(),
                 data: {
                     userId: { value: 4 },
-                    title: { value: 'aзбука' },
+                    title: { value: 'азбука' },
                     completed: { value: false, renderer: CompletedColumnRender },
                     date: { value: '2020-11-17T03:24:00', renderer: DateRenderer }
                 }
