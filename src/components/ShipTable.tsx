@@ -202,7 +202,7 @@ class ShipTable extends Component<TableProps> {
 
     private static sortTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
         const sortColumnId = state.sortInfo.columnId
-        const asc = state.sortInfo.asc ? state.sortInfo.asc : true
+        const asc = state.sortInfo.asc === undefined ? true : state.sortInfo.asc
 
         ShipTable.consoleLog(props, 'sortColumnId', sortColumnId, 'asc', asc)
 
@@ -259,23 +259,19 @@ class ShipTable extends Component<TableProps> {
     }
 
     private static filterTableRows = (props: TableProps, state: State, tableRows: Array<RowType>) => {
-        const columnFilterTypeMapping = {}
-        const searchColumnIdList = Object.keys(state.searchInfo)
-        searchColumnIdList.forEach((columnId) => {
-            columnFilterTypeMapping[columnId] = ShipTable.getColumnValueType(props, columnId)
-        })
+        const filterColumnIdList = Object.keys(state.searchInfo)
         tableRows = tableRows.filter((row) => {
             if (row.id === C.FILTER_ROW_ID) {
                 return true
             }
-            let isFilterSatisfied: boolean = true
-            searchColumnIdList.forEach((columnId) => {
-                const columnValueType = columnFilterTypeMapping[columnId]
-                const rowValue = row.data[columnId]?.value
-                const searchValue = state.searchInfo[columnId]
-                isFilterSatisfied = isFilterSatisfied && ShipTable.isTableColumnSatisfyFilter(columnValueType, rowValue, searchValue)
+            let isFilterPassed: boolean = true
+            filterColumnIdList.forEach((columnId) => {
+                const columnType = ShipTable.getColumnValueType(props, columnId)
+                const value = row.data[columnId]?.value
+                const filterValue = state.searchInfo[columnId]
+                isFilterPassed = isFilterPassed && ShipTable.isValuePassedFilter(columnType, value, filterValue)
             })
-            return isFilterSatisfied
+            return isFilterPassed
         })
         return tableRows
     }
@@ -286,50 +282,50 @@ class ShipTable extends Component<TableProps> {
         })?.columnValueType
     }
 
-    private static isTableColumnSatisfyFilter(columnRendererType: string, rowValue: any, searchValue: any) {
+    private static isValuePassedFilter(columnValueType: ColumnValueType, value: any, filterValue: any) {
         let result: boolean = false
-        if (rowValue !== undefined && searchValue !== undefined) {
-            switch (columnRendererType) {
+        if (value !== undefined && filterValue !== undefined) {
+            switch (columnValueType) {
             case 'number':
-                result = ShipTable.isNumberValueSatisfyFilter(rowValue, searchValue)
+                result = ShipTable.isNumberValuePassedFilter(value, filterValue)
                 break
             case 'date':
-                result = ShipTable.isDateValueSatisfyFilter(rowValue, searchValue)
+                result = ShipTable.isDateValuePassedFilter(value, filterValue)
                 break
             default:
-                result = ShipTable.isTextValueSatisfyFilter(rowValue, searchValue)
+                result = ShipTable.isTextValuePassedFilter(value, filterValue)
                 break
             }
         }
         return result
     }
 
-    private static isNumberValueSatisfyFilter(rowValue: number, searchValue: {minValue?: number, maxValue?: number}) {
-        if (searchValue.minValue && searchValue.maxValue) {
-            return rowValue >= searchValue.minValue && rowValue <= searchValue.maxValue
-        } else if (searchValue.minValue) {
-            return rowValue >= searchValue.minValue
-        } else if (searchValue.maxValue) {
-            return rowValue <= searchValue.maxValue
+    private static isNumberValuePassedFilter(value: number, filterValue: {minValue?: number, maxValue?: number}) {
+        if (filterValue.minValue && filterValue.maxValue) {
+            return value >= filterValue.minValue && value <= filterValue.maxValue
+        } else if (filterValue.minValue) {
+            return value >= filterValue.minValue
+        } else if (filterValue.maxValue) {
+            return value <= filterValue.maxValue
         }
         return false
     }
 
-    private static isDateValueSatisfyFilter(rowValue: string, searchValue: {startDate: string, endDate: string}) {
-        const dateValue = moment(rowValue, C.DATE_FORMAT)
-        if (searchValue.endDate && searchValue.startDate) {
-            return dateValue >= moment(searchValue.startDate) && dateValue <= moment(searchValue.endDate)
-        } else if (searchValue.endDate) {
-            return dateValue <= moment(searchValue.endDate)
-        } else if (searchValue.startDate) {
-            return dateValue >= moment(searchValue.startDate)
+    private static isDateValuePassedFilter(value: string, filterValue: {startDate: string, endDate: string}) {
+        const dateValue = moment(value, C.DATE_FORMAT)
+        if (filterValue.endDate && filterValue.startDate) {
+            return dateValue >= moment(filterValue.startDate) && dateValue <= moment(filterValue.endDate)
+        } else if (filterValue.endDate) {
+            return dateValue <= moment(filterValue.endDate)
+        } else if (filterValue.startDate) {
+            return dateValue >= moment(filterValue.startDate)
         }
         return false
     }
 
-    private static isTextValueSatisfyFilter(rowValue: string, searchValue: string) {
-        const textValue = rowValue.toString().toLowerCase()
-        return textValue.includes(searchValue.toLowerCase())
+    private static isTextValuePassedFilter(value: string, filterValue: string) {
+        const textValue = value.toString().toLowerCase()
+        return textValue.includes(filterValue.toLowerCase())
     }
 
     getTableData = () => {
