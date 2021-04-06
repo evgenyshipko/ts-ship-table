@@ -1,24 +1,26 @@
-import React, { Component, FC } from 'react';
+import React, { FC } from 'react';
 import { Switch } from 'antd';
 
 interface TextSwitchProps {
-    enabled: boolean;
-    text: string;
+    enabled?: boolean;
     isDefaultChecked: boolean;
     onChange: () => void;
 }
 
-export const TextSwitch: FC<TextSwitchProps> = (props) => {
-    return (
-        <div>
-            {this.props.text}
-            <Switch
-                className="ship-text-switch"
-                onChange={() => {
-                    this.props.onChange();
-                }}
-                defaultChecked={this.props.isDefaultChecked}
-            />
-        </div>
-    );
+export const TestSwitch: FC<TextSwitchProps> = (props) => {
+    if (props.enabled) {
+        return (
+            <div className="ship-text-switch-div">
+                {'Тест'}
+                <Switch
+                    className="ship-text-switch"
+                    onChange={() => {
+                        props.onChange();
+                    }}
+                    defaultChecked={props.isDefaultChecked}
+                />
+            </div>
+        );
+    }
+    return <></>;
 };

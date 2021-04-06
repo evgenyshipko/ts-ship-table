@@ -17,13 +17,6 @@
     vertical-align: middle;
 }
 
-.ship-loading-spin-div{
-    display: inline-block;
-    margin-left: 120px;
-    vertical-align: middle;
-    position: absolute;
-}
-
 .ship-ant-pagination-div{
     display: inline-block;
     margin: 3px;

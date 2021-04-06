@@ -1,30 +1,37 @@
-import React, { Component } from 'react'
-import { Input } from 'antd'
-import { RendererProps } from 'react-bs-table'
+import React, { Component } from 'react';
+import { Input } from 'antd';
+import { RendererProps } from 'react-bs-table';
 
-const { Search } = Input
+const { Search } = Input;
 class RenderTextFilterCell extends Component<RendererProps> {
     render() {
-        if (this.props.tableData.props !== undefined) {
+        if (this.props.tableData.props) {
             return (
                 <Search
-                    defaultValue={this.props.tableData.props.searchInfo[this.props.columnId]}
+                    defaultValue={
+                        this.props.tableData.props.searchInfo[
+                            this.props.columnId
+                        ]
+                    }
                     onChange={(e) => {
-                        if (this.props.tableData.props !== undefined) {
-                            this.props.tableData.props.setSearchInfo(this.props.columnId, e.target.value)
+                        if (this.props.tableData.props) {
+                            this.props.tableData.props.setSearchInfo(
+                                this.props.columnId,
+                                e.target.value
+                            );
                         }
                     }}
                     onSearch={() => {
-                        if (this.props.tableData.props !== undefined) {
-                            this.props.tableData.props.updateTableData()
+                        if (this.props.tableData.props) {
+                            this.props.tableData.props.updateTableData();
                         }
                     }}
                 />
-            )
+            );
         } else {
-            return <></>
+            return <></>;
         }
     }
 }
 
-export default RenderTextFilterCell
+export default RenderTextFilterCell;

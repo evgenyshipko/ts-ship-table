@@ -1,68 +1,74 @@
-import React, { Component } from 'react'
-import { Button, InputNumber } from 'antd'
-import { RendererProps } from 'react-bs-table'
-import {
-    SearchOutlined,
-    UndoOutlined
-} from '@ant-design/icons'
+import React, { Component } from 'react';
+import { Button, InputNumber } from 'antd';
+import { RendererProps } from 'react-bs-table';
+import { SearchOutlined, UndoOutlined } from '@ant-design/icons';
 
 interface NumberInfoType {
-    minValue?: undefined | number,
-    maxValue?: undefined | number
+    minValue?: undefined | number;
+    maxValue?: undefined | number;
 }
 
 class RenderNumberFilterCell extends Component<RendererProps> {
     handleChangeNumber = (minValue: any, maxValue: any) => {
-        const numberInfo: NumberInfoType = {}
+        const numberInfo: NumberInfoType = {};
         if (minValue != null) {
-            numberInfo.minValue = minValue
+            numberInfo.minValue = minValue;
         }
         if (maxValue != null) {
-            numberInfo.maxValue = maxValue
+            numberInfo.maxValue = maxValue;
         }
         if (this.props.tableData.props !== undefined) {
-            const columnId = this.props.columnId
-            const searchInfo = this.props.tableData.props.searchInfo[columnId]
+            const columnId = this.props.columnId;
+            const searchInfo = this.props.tableData.props.searchInfo[columnId];
 
             this.props.tableData.props.setSearchInfo(
                 columnId,
-                minValue == null && maxValue == null ? undefined : { ...searchInfo, ...numberInfo }
-            )
+                minValue == null && maxValue == null
+                    ? undefined
+                    : { ...searchInfo, ...numberInfo }
+            );
         }
-    }
+    };
 
     updateTableDataBySearch = () => {
         if (this.props.tableData.props !== undefined) {
-            this.props.tableData.props.updateTableData()
+            this.props.tableData.props.updateTableData();
         }
-    }
+    };
 
     render() {
         if (this.props.tableData.props !== undefined) {
-            const min = this.props.tableData.props.searchInfo[this.props.columnId]?.minValue
-            const max = this.props.tableData.props.searchInfo[this.props.columnId]?.maxValue
+            const min = this.props.tableData.props.searchInfo[
+                this.props.columnId
+            ]?.minValue;
+            const max = this.props.tableData.props.searchInfo[
+                this.props.columnId
+            ]?.maxValue;
 
             return (
-                <div className='ship-number-filter-table-div'>
+                <div className="ship-number-filter-table-div">
                     <table>
                         <tbody>
                             <tr>
                                 <td>
                                     <InputNumber
-                                        className='input-min-value'
+                                        className="input-min-value"
                                         value={min}
                                         max={max}
                                         onChange={(value) => {
-                                            this.handleChangeNumber(value, null)
+                                            this.handleChangeNumber(
+                                                value,
+                                                null
+                                            );
                                         }}
-                                        placeholder='От'
+                                        placeholder="От"
                                     />
                                 </td>
                                 <td>
                                     <Button
-                                        className='number-filter-cell-search-btn'
+                                        className="number-filter-cell-search-btn"
                                         onClick={() => {
-                                            this.updateTableDataBySearch()
+                                            this.updateTableDataBySearch();
                                         }}
                                         icon={<SearchOutlined />}
                                     />
@@ -71,20 +77,23 @@ class RenderNumberFilterCell extends Component<RendererProps> {
                             <tr>
                                 <td>
                                     <InputNumber
-                                        className='input-max-value'
+                                        className="input-max-value"
                                         value={max}
                                         min={min}
                                         onChange={(value) => {
-                                            this.handleChangeNumber(null, value)
+                                            this.handleChangeNumber(
+                                                null,
+                                                value
+                                            );
                                         }}
-                                        placeholder='До'
+                                        placeholder="До"
                                     />
                                 </td>
                                 <td>
                                     <Button
-                                        className='number-filter-cell-undo-btn'
+                                        className="number-filter-cell-undo-btn"
                                         onClick={() => {
-                                            this.handleChangeNumber(null, null)
+                                            this.handleChangeNumber(null, null);
                                         }}
                                         icon={<UndoOutlined />}
                                     />
@@ -93,11 +102,11 @@ class RenderNumberFilterCell extends Component<RendererProps> {
                         </tbody>
                     </table>
                 </div>
-            )
+            );
         } else {
-            return <></>
+            return <></>;
         }
     }
 }
 
-export default RenderNumberFilterCell
+export default RenderNumberFilterCell;
