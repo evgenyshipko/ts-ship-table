@@ -1,6 +1,6 @@
 import React, { Component, ComponentType, RefObject } from 'react';
 
-import { ShipTable, ColumnType, RowType } from 'ts-ship-table';
+import { ShipTable, ColumnType, RowType, COLUMN_TYPE } from 'ts-ship-table';
 
 import 'ts-ship-table/dist/index.css';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,7 +32,7 @@ class App extends Component {
         {
             field: 'userId',
             title: 'id юзера',
-            columnValueType: 'number',
+            columnValueType: COLUMN_TYPE.NUMBER,
             class: 'userid-column-class',
             grouped: true,
             sortEnable: true,
@@ -58,7 +58,7 @@ class App extends Component {
         {
             field: 'date',
             title: 'Дата',
-            columnValueType: 'date',
+            columnValueType: COLUMN_TYPE.DATE,
             class: 'date-column-class',
             sortEnable: true,
         },
@@ -85,7 +85,10 @@ class App extends Component {
     };
 
     updateTableData1 = () => {
-        const rows = this.getTestRows();
+        const rows = [];
+        for (let i = 0; i < 5; i++) {
+            rows.push(...this.getTestRows());
+        }
         this.state.tableData1 = {
             rows: rows,
             totalRowQuantity: rows.length,

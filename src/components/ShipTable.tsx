@@ -91,6 +91,13 @@ class ShipTable extends Component<TableProps> {
             ) {
                 tableDataRows = sortTableRows(props, state, tableDataRows);
             }
+            if (props.options?.pagination) {
+                const start =
+                    (paginationInfo.pageNumber - 1) *
+                    paginationInfo.recordsPerPage;
+                const end = start + paginationInfo.recordsPerPage;
+                tableDataRows = tableDataRows.slice(start, end);
+            }
             return {
                 ...state,
                 prevPropsId: props.id,
@@ -307,6 +314,7 @@ class ShipTable extends Component<TableProps> {
     render() {
         consoleLog(this.props, '=== ShipTable render() ===');
         consoleLog(this.props, 'ShipTable.state', this.state);
+        console.log('this.state.paginationInfo', this.state.paginationInfo);
         return (
             <div className="ship-table-div">
                 <ButtonBlock
