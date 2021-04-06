@@ -21,6 +21,7 @@ import { filterTableRows } from '../utils/filter';
 import { consoleLog } from '../utils/common';
 import CustomFilterCellRenderer from '../renderers/RenderCustomFilterCell';
 import { ButtonBlock } from './ButtonBlock';
+import EmptyFilterCellRenderer from '../renderers/RenderEmptyFilterCell';
 
 export interface ShipTableState {
     prevPropsId: string;
@@ -204,9 +205,7 @@ class ShipTable extends Component<TableProps> {
 
                 const renderer = columnData.customFilterRenderer
                     ? CustomFilterCellRenderer
-                    : ShipTable.getFilterRendererByColumnValueType(
-                          columnValueType
-                      );
+                    : ShipTable.getFilterRenderer(columnValueType);
 
                 filterRow.data[columnId] = { renderer };
             });
@@ -219,16 +218,16 @@ class ShipTable extends Component<TableProps> {
         return dataToTransform;
     };
 
-    private static getFilterRendererByColumnValueType = (
-        columnValueType: ColumnValueType
-    ) => {
+    private static getFilterRenderer = (columnValueType: ColumnValueType) => {
         switch (columnValueType) {
             case COLUMN_TYPE.DATE:
                 return RenderDateFilterCell;
             case COLUMN_TYPE.NUMBER:
                 return RenderNumberFilterCell;
-            default:
+            case COLUMN_TYPE.TEXT:
                 return RenderTextFilterCell;
+            default:
+                return EmptyFilterCellRenderer;
         }
     };
 
