@@ -1,13 +1,20 @@
 import { RefObject } from 'react';
 import {
     ColumnType as BSColumnType,
+    // @ts-ignore
     RowType,
+    // @ts-ignore
     RendererProps,
+    // @ts-ignore
     TableDataType,
 } from 'react-bs-table';
 import { SearchInfoType, SortInfoType } from './PrivateTypes';
 
-export { RowType, RendererProps };
+export type RowType = RowType;
+
+export type RendererProps = RendererProps;
+
+export type TableDataType = TableDataType;
 
 export interface TableProps extends BSTableProps {
     id: string;
