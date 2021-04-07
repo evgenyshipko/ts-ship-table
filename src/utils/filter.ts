@@ -1,5 +1,4 @@
-import { ColumnValueType, CustomFilterOptions, TableProps } from '..';
-import { RowType } from 'react-bs-table';
+import { ColumnValueType, CustomFilterOptions, TableProps, RowType } from '..';
 import C, { COLUMN_TYPE } from '../constants/C';
 import moment from 'moment';
 import { ShipTableState } from '../components/ShipTable';
@@ -54,6 +53,7 @@ const isValuePassedFilter = (
     columnValueType: ColumnValueType,
     value: any,
     filterValue: any,
+    rowData: RowType['data'],
     customFilterOptions?: CustomFilterOptions
 ) => {
     let result: boolean = false;
@@ -61,7 +61,11 @@ const isValuePassedFilter = (
         switch (columnValueType) {
             case COLUMN_TYPE.CUSTOM:
                 result = customFilterOptions?.filterFunc
-                    ? customFilterOptions.filterFunc(value, filterValue)
+                    ? customFilterOptions.filterFunc(
+                          value,
+                          filterValue,
+                          rowData
+                      )
                     : true;
                 break;
             case COLUMN_TYPE.NUMBER:
@@ -92,12 +96,14 @@ export const filterTableRows = (
                 props,
                 columnId
             );
-            const value = row.data[columnId]?.value;
+            const rowData: RowType['data'] = row.data;
+            const value = rowData[columnId]?.value;
             const filterValue = state.searchInfo[columnId];
             return isValuePassedFilter(
                 columnValueType,
                 value,
                 filterValue,
+                rowData,
                 customFilterOptions
             );
         });

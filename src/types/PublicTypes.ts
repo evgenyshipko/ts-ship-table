@@ -79,7 +79,11 @@ export type CustomFilterOptions = {
         rendererProps: RendererProps,
         tableDataProps: TableDataProps
     ) => JSX.Element;
-    filterFunc: (rowValue: any, filterValue: any) => boolean;
+    filterFunc: (
+        rowValue: any,
+        filterValue: any,
+        rowData: RowType['data']
+    ) => boolean;
 };
 
 export type ColumnValueType = 'date' | 'number' | 'text' | 'custom' | undefined;
