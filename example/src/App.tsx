@@ -1,240 +1,108 @@
-import React, { Component, ComponentType, RefObject } from 'react';
+import React, { Component } from 'react';
 
-import { ShipTable, ColumnType, RowType, COLUMN_TYPE } from 'ts-ship-table';
+import {
+    RowType,
+    SEARCH_TYPE,
+    ShipTable,
+    SORT_TYPE,
+    PAGINATION_TYPE,
+} from 'ts-ship-table';
 
 import 'ts-ship-table/dist/index.css';
 import { v4 as uuidv4 } from 'uuid';
 import CompletedColumnRender from './renderers/CompletedColumnRender';
-import { RendererProps, ResponseTableData, TableDataProps } from '../../src';
+import { ResponseTableData } from '../../src';
 import { Button } from 'antd';
-import DateRenderer from './renderers/DateRenderer';
+import { columnInfoList } from './columns';
+import { getTestRows } from './rows';
 
 interface State {
     isPaginationNeeded: boolean;
-    tableData1: ResponseTableData;
-    tableData2: ResponseTableData;
-    addedRows: Array<RowType>;
+    tableData: ResponseTableData;
 }
 
 class App extends Component {
     state: State = {
         isPaginationNeeded: true,
-        tableData1: { totalRowQuantity: 0, rows: [] },
-        tableData2: { totalRowQuantity: 0, rows: [] },
-        addedRows: [],
+        tableData: { totalRowQuantity: 0, rows: [] },
     };
-
-    myRender: ComponentType<RendererProps> = (props: RendererProps) => {
-        return <div>privet {props.rowData.class}</div>;
-    };
-
-    columnInfoList: Array<ColumnType> = [
-        {
-            field: 'userId',
-            title: 'id юзера',
-            columnValueType: COLUMN_TYPE.NUMBER,
-            class: 'userid-column-class',
-            grouped: true,
-            sortEnable: true,
-        },
-        {
-            field: 'title',
-            title: 'Название',
-            customFilterRenderer: (
-                _rendererProps: RendererProps,
-                tableDataProps: TableDataProps
-            ) => {
-                return <div>{JSON.stringify(tableDataProps.searchInfo)}</div>;
-            },
-            class: 'summary-column-class',
-            sortEnable: true,
-        },
-        {
-            field: 'completed',
-            title: 'Выполнено?',
-            class: 'reporter-column-class',
-            sortEnable: true,
-        },
-        {
-            field: 'date',
-            title: 'Дата',
-            columnValueType: COLUMN_TYPE.DATE,
-            class: 'date-column-class',
-            sortEnable: true,
-        },
-    ];
 
     componentDidMount() {
-        this.updateTableData1();
-        this.updateTableData2();
+        this.initTableData();
     }
+
+    initTableData = () => {
+        const rows = getTestRows();
+        this.setState({
+            ...this.state,
+            tableData: {
+                rows: rows,
+                totalRowQuantity: rows.length,
+            },
+        });
+    };
 
     addRow = () => {
         const row: RowType = {
             id: uuidv4(),
             data: {
-                userId: { value: 6 },
-                title: { value: 'ящер' },
+                quantity: { value: 6 },
+                title: { value: 'apple' },
                 completed: { value: false, renderer: CompletedColumnRender },
             },
         };
-
-        this.state.addedRows.unshift(row);
-        this.updateTableData1();
-        this.setState(this.state);
-    };
-
-    updateTableData1 = () => {
-        const rows = [];
-        for (let i = 0; i < 5; i++) {
-            rows.push(...this.getTestRows());
-        }
-        this.state.tableData1 = {
-            rows: rows,
-            totalRowQuantity: rows.length,
-        };
-        this.state.addedRows.forEach((addedRow) => {
-            this.state.tableData1.rows.unshift(addedRow);
+        this.setState({
+            ...this.state,
+            tableData: {
+                ...this.state.tableData,
+                totalRowQuantity: this.state.tableData.totalRowQuantity + 1,
+                rows: [row, ...this.state.tableData.rows],
+            },
         });
-        this.setState(this.state);
     };
 
-    updateTableData2 = () => {
-        const rows = this.getTestRows();
-        this.state.tableData2 = {
-            rows: rows,
-            totalRowQuantity: rows.length,
-        };
-        this.state.addedRows.forEach((addedRow) => {
-            this.state.tableData2.rows.unshift(addedRow);
+    togglePagination = () => {
+        this.setState({
+            ...this.state,
+            isPaginationNeeded: !this.state.isPaginationNeeded,
         });
-        // add parents
-        this.state.tableData2.rows[1].parent = this.state.tableData2.rows[0].id;
-        this.state.tableData2.rows[2].parent = this.state.tableData2.rows[0].id;
-        this.setState(this.state);
     };
-
-    getTestRows = () => {
-        return [
-            {
-                id: uuidv4(),
-                data: {
-                    userId: { value: 2 },
-                    title: { value: 'абрикос' },
-                    completed: { value: true, renderer: CompletedColumnRender },
-                    date: {
-                        value: '2020-11-18T03:24:00',
-                        renderer: DateRenderer,
-                    },
-                },
-            },
-            {
-                id: uuidv4(),
-                data: {
-                    userId: { value: 1 },
-                    title: { value: 'авокадо' },
-                    completed: {
-                        value: false,
-                        renderer: CompletedColumnRender,
-                    },
-                    date: {
-                        value: '2020-10-17T03:24:00',
-                        renderer: DateRenderer,
-                    },
-                },
-            },
-            {
-                id: uuidv4(),
-                data: {
-                    userId: { value: 3 },
-                    title: { value: 'булка' },
-                    completed: { value: true, renderer: CompletedColumnRender },
-                    date: {
-                        value: '1995-12-17T03:24:00',
-                        renderer: DateRenderer,
-                    },
-                },
-            },
-            {
-                id: uuidv4(),
-                data: {
-                    userId: { value: 4 },
-                    title: { value: 'азбука' },
-                    completed: {
-                        value: false,
-                        renderer: CompletedColumnRender,
-                    },
-                    date: {
-                        value: '2020-11-17T03:24:00',
-                        renderer: DateRenderer,
-                    },
-                },
-            },
-        ];
-    };
-
-    ref: RefObject<any> = React.createRef();
 
     render() {
-        const addRow = (
-            <Button
-                key="add-row"
-                onClick={() => {
-                    this.addRow();
-                }}
-            >
-                addRow
+        const addRowBtn = (
+            <Button key="add-row" onClick={this.addRow}>
+                Add row
             </Button>
         );
 
-        const pbtn = (
-            <Button
-                key="change-pgnation-btn"
-                onClick={() => {
-                    this.state.isPaginationNeeded = !this.state
-                        .isPaginationNeeded;
-                    this.setState(this.state);
-                }}
-            >
-                changePagination
+        const togglePaginationBtn = (
+            <Button key="change-pgnation-btn" onClick={this.togglePagination}>
+                Toggle pagination
             </Button>
         );
 
         return (
             <div>
                 <span>
-                    1. Table with ability to add rows, switch pagination, search
-                    and sort on frontend.
+                    1. Table with pagination, filtering and sort on frontend.
                 </span>
                 <ShipTable
                     id={uuidv4()}
                     class="ship-table-prototype-1"
-                    columns={this.columnInfoList}
-                    updateTableData={this.updateTableData1}
-                    tableData={this.state.tableData1}
+                    columns={columnInfoList}
+                    tableData={this.state.tableData}
+                    updateTableData={() => this.setState(this.state)}
+                    jsxElementsToHeader={[togglePaginationBtn, addRowBtn]}
                     options={{
                         pagination: this.state.isPaginationNeeded,
+                        paginationType: PAGINATION_TYPE.FRONT,
                         search: true,
-                        searchType: 'front',
+                        searchType: SEARCH_TYPE.FRONT,
                         styledTable: true,
-                        testSwitch: true,
                         sorting: true,
-                        sortingType: 'front',
+                        sortingType: SORT_TYPE.FRONT,
                     }}
-                    ref={this.ref}
-                    jsxElementsToHeader={[pbtn, addRow]}
                 />
-                {/*<span>2. Table with tree-structure</span>*/}
-                {/*<ShipTable*/}
-                {/*    id={uuidv4()}*/}
-                {/*    class="ship-table-prototype-1"*/}
-                {/*    columns={this.columnInfoList}*/}
-                {/*    updateTableData={this.updateTableData2}*/}
-                {/*    tableData={this.state.tableData2}*/}
-                {/*    options={{*/}
-                {/*        styledTable: true,*/}
-                {/*    }}*/}
-                {/*/>*/}
             </div>
         );
     }

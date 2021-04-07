@@ -1,5 +1,7 @@
 # ts-ship-table
 
+![alt text](https://github.com/evgenyshipko/ts-ship-table/blob/master/markdown/gif/ts-ship-table-success.gif "Ship table interface")
+
 ShipTable is a wrapped Table component from library [react-bs-table](github:bs50/react-bs-table#master)
 with abilities of search by columns, sorting and pagination.
 

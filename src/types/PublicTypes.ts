@@ -44,12 +44,13 @@ export interface BSTableProps {
 export interface TableOptions {
     styledTable?: boolean;
     testSwitch?: boolean;
+    showLogs?: boolean;
     search?: boolean;
     searchType?: SearchMode;
     pagination?: boolean;
+    paginationType?: PaginationMode;
     sorting?: boolean;
     sortingType?: SortMode;
-    showLogs?: boolean;
 }
 
 export interface ResponseTableData {
@@ -69,13 +70,19 @@ export interface TableDataProps {
 
 export interface ColumnType extends BSColumnType {
     columnValueType?: ColumnValueType;
-    customFilterRenderer?: (
-        rendererProps: RendererProps,
-        tableDataProps: TableDataProps
-    ) => JSX.Element;
+    customFilterOptions?: CustomFilterOptions;
     sortEnable?: boolean;
 }
 
-export type ColumnValueType = 'date' | 'number' | 'text' | undefined;
+export type CustomFilterOptions = {
+    renderer: (
+        rendererProps: RendererProps,
+        tableDataProps: TableDataProps
+    ) => JSX.Element;
+    filterFunc: (rowValue: any, filterValue: any) => boolean;
+};
+
+export type ColumnValueType = 'date' | 'number' | 'text' | 'custom' | undefined;
 export type SearchMode = 'front' | 'back';
 export type SortMode = 'front' | 'back';
+export type PaginationMode = 'front' | 'back';

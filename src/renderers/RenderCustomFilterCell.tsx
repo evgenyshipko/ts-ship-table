@@ -7,8 +7,8 @@ class CustomFilterCellRenderer extends Component<RendererProps> {
         const columnData = this.props.tableData.columns.find(
             (columnData) => columnData.field === this.props.columnId
         ) as ColumnType;
-        if (columnData && columnData.customFilterRenderer) {
-            return columnData.customFilterRenderer(
+        if (columnData && columnData.customFilterOptions?.renderer) {
+            return columnData.customFilterOptions.renderer(
                 this.props,
                 this.props.tableData.props as TableDataProps
             );

@@ -13,15 +13,15 @@ import {
     SortInfoType,
 } from '../types/PrivateTypes';
 
-import { ColumnValueType, TableDataProps, TableProps } from '..';
+import { ColumnType, PAGINATION_TYPE, TableDataProps, TableProps } from '..';
 import RenderNumberFilterCell from '../renderers/RenderNumberFilterCell';
 import C, { COLUMN_TYPE, SEARCH_TYPE, SORT_TYPE } from '../constants/C';
 import { sortTableRows } from '../utils/sort';
 import { filterTableRows } from '../utils/filter';
 import { consoleLog } from '../utils/common';
-import CustomFilterCellRenderer from '../renderers/RenderCustomFilterCell';
 import { ButtonBlock } from './ButtonBlock';
 import EmptyFilterCellRenderer from '../renderers/RenderEmptyFilterCell';
+import CustomFilterCellRenderer from '../renderers/RenderCustomFilterCell';
 
 export interface ShipTableState {
     prevPropsId: string;
@@ -68,15 +68,7 @@ class ShipTable extends Component<TableProps> {
     static getDerivedStateFromProps(props: TableProps, state: ShipTableState) {
         if (props.id !== state.prevPropsId) {
             consoleLog(props, '=== getDerivedStateFromProps ===');
-            const paginationInfo = ShipTable.getPaginationInfo(
-                props,
-                state.paginationInfo
-            );
-            let tableDataRows = ShipTable.updateTableDataByFilterRow(
-                props,
-                state,
-                props.tableData.rows
-            );
+            let tableDataRows = props.tableData.rows;
             if (
                 props.options?.search &&
                 props.options?.searchType === SEARCH_TYPE.FRONT &&
@@ -91,6 +83,11 @@ class ShipTable extends Component<TableProps> {
             ) {
                 tableDataRows = sortTableRows(props, state, tableDataRows);
             }
+            const paginationInfo = ShipTable.getPaginationInfo(
+                props,
+                state.paginationInfo,
+                tableDataRows
+            );
             if (props.options?.pagination) {
                 const start =
                     (paginationInfo.pageNumber - 1) *
@@ -98,14 +95,16 @@ class ShipTable extends Component<TableProps> {
                 const end = start + paginationInfo.recordsPerPage;
                 tableDataRows = tableDataRows.slice(start, end);
             }
+            tableDataRows = ShipTable.updateTableDataByFilterRow(
+                props,
+                state,
+                tableDataRows
+            );
             return {
                 ...state,
                 prevPropsId: props.id,
                 tableDataRows: tableDataRows,
-                paginationInfo: {
-                    ...paginationInfo,
-                    totalRecordsQuantity: props.tableData.totalRowQuantity,
-                },
+                paginationInfo: paginationInfo,
             };
         }
         return {};
@@ -113,13 +112,16 @@ class ShipTable extends Component<TableProps> {
 
     static getPaginationInfo = (
         props: TableProps,
-        paginationInfo: PaginationInfoType
-    ) => {
+        paginationInfo: PaginationInfoType,
+        tableDataRows: RowType[]
+    ): PaginationInfoType => {
+        let totalRecordsQuantity = props.tableData.totalRowQuantity;
         if (props.options?.pagination) {
-            const totalRecordsQuantity = props.tableData.totalRowQuantity;
+            if (props.options.paginationType === PAGINATION_TYPE.FRONT) {
+                totalRecordsQuantity = tableDataRows.length;
+            }
             const recordsPerPage = paginationInfo.recordsPerPage;
             const pageNumber = paginationInfo.pageNumber;
-
             if (
                 Math.ceil(totalRecordsQuantity / recordsPerPage) < pageNumber &&
                 totalRecordsQuantity !== 0
@@ -127,7 +129,10 @@ class ShipTable extends Component<TableProps> {
                 paginationInfo.pageNumber = 1;
             }
         }
-        return paginationInfo;
+        return {
+            ...paginationInfo,
+            totalRecordsQuantity: totalRecordsQuantity,
+        };
     };
 
     updateTableData = () => {
@@ -208,12 +213,7 @@ class ShipTable extends Component<TableProps> {
             };
             props.columns.forEach((columnData) => {
                 const columnId = columnData.field;
-                const columnValueType = columnData.columnValueType;
-
-                const renderer = columnData.customFilterRenderer
-                    ? CustomFilterCellRenderer
-                    : ShipTable.getFilterRenderer(columnValueType);
-
+                const renderer = ShipTable.getFilterRenderer(columnData);
                 filterRow.data[columnId] = { renderer };
             });
             dataToTransform.unshift(filterRow);
@@ -225,8 +225,11 @@ class ShipTable extends Component<TableProps> {
         return dataToTransform;
     };
 
-    private static getFilterRenderer = (columnValueType: ColumnValueType) => {
+    private static getFilterRenderer = (columnData: ColumnType) => {
+        const columnValueType = columnData.columnValueType;
         switch (columnValueType) {
+            case COLUMN_TYPE.CUSTOM:
+                return CustomFilterCellRenderer;
             case COLUMN_TYPE.DATE:
                 return RenderDateFilterCell;
             case COLUMN_TYPE.NUMBER:
@@ -314,7 +317,6 @@ class ShipTable extends Component<TableProps> {
     render() {
         consoleLog(this.props, '=== ShipTable render() ===');
         consoleLog(this.props, 'ShipTable.state', this.state);
-        console.log('this.state.paginationInfo', this.state.paginationInfo);
         return (
             <div className="ship-table-div">
                 <ButtonBlock

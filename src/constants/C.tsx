@@ -1,4 +1,4 @@
-import { ColumnValueType, SearchMode, SortMode } from '..';
+import { ColumnValueType, PaginationMode, SearchMode, SortMode } from '..';
 
 class C {
     static DATE_FORMAT = 'YYYY-MM-DD';
@@ -20,4 +20,10 @@ export const COLUMN_TYPE: Record<string, ColumnValueType> = {
     DATE: 'date',
     NUMBER: 'number',
     TEXT: 'text',
+    CUSTOM: 'custom',
+};
+
+export const PAGINATION_TYPE: Record<string, PaginationMode> = {
+    FRONT: 'front',
+    BACK: 'back',
 };

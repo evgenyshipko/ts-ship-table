@@ -1,16 +1,16 @@
-import { ColumnValueType, TableProps } from '..';
+import { ColumnValueType, CustomFilterOptions, TableProps } from '..';
 import { RowType } from 'react-bs-table';
 import C, { COLUMN_TYPE } from '../constants/C';
 import moment from 'moment';
 import { ShipTableState } from '../components/ShipTable';
 
-const getColumnValueType = (
-    props: TableProps,
-    columnId: string | undefined
-) => {
-    return props.columns.find((columnData) => {
+const getColumnData = (props: TableProps, columnId: string | undefined) => {
+    const columnData = props.columns.find((columnData) => {
         return columnData.field === columnId;
-    })?.columnValueType;
+    });
+    const columnValueType = columnData?.columnValueType;
+    const customFilterOptions = columnData?.customFilterOptions;
+    return { columnValueType, customFilterOptions };
 };
 
 const isNumberValuePassedFilter = (
@@ -53,11 +53,17 @@ const isTextValuePassedFilter = (value: string, filterValue: string) => {
 const isValuePassedFilter = (
     columnValueType: ColumnValueType,
     value: any,
-    filterValue: any
+    filterValue: any,
+    customFilterOptions?: CustomFilterOptions
 ) => {
     let result: boolean = false;
     if (value !== undefined && filterValue !== undefined) {
         switch (columnValueType) {
+            case COLUMN_TYPE.CUSTOM:
+                result = customFilterOptions?.filterFunc
+                    ? customFilterOptions.filterFunc(value, filterValue)
+                    : true;
+                break;
             case COLUMN_TYPE.NUMBER:
                 result = isNumberValuePassedFilter(value, filterValue);
                 break;
@@ -81,15 +87,19 @@ export const filterTableRows = (
         if (row.id === C.FILTER_ROW_ID) {
             return true;
         }
-        let isFilterPassed: boolean = true;
-        Object.keys(state.searchInfo).forEach((columnId) => {
-            const columnType = getColumnValueType(props, columnId);
+        return Object.keys(state.searchInfo).every((columnId) => {
+            const { columnValueType, customFilterOptions } = getColumnData(
+                props,
+                columnId
+            );
             const value = row.data[columnId]?.value;
             const filterValue = state.searchInfo[columnId];
-            isFilterPassed =
-                isFilterPassed &&
-                isValuePassedFilter(columnType, value, filterValue);
+            return isValuePassedFilter(
+                columnValueType,
+                value,
+                filterValue,
+                customFilterOptions
+            );
         });
-        return isFilterPassed;
     });
 };
