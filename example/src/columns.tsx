@@ -3,6 +3,7 @@ import { ColumnType, TableDataProps, COLUMN_TYPE } from 'ts-ship-table';
 import { RendererProps } from 'react-bs-table';
 import { Select } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
+import { RowType } from '../../src';
 
 const { Option } = Select;
 
@@ -29,7 +30,12 @@ const completedCustomFilterRenderer = (
     );
 };
 
-const filterFunc = (value: boolean, filterValue: boolean) => {
+const filterFunc = (
+    value: boolean,
+    filterValue: boolean,
+    rowData: RowType['data']
+) => {
+    console.log('rowData', rowData);
     return value === filterValue;
 };
 

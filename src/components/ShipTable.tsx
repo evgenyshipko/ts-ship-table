@@ -331,7 +331,9 @@ class ShipTable extends Component<TableProps> {
                     toggleSearchActive={this.toggleSearchActive}
                     undoSearch={this.handleUndoSearch}
                 />
-                <Table tableData={this.getTableData()} />
+                <div className="ship-table-react-bs-table-div">
+                    <Table tableData={this.getTableData()} />
+                </div>
             </div>
         );
     }
